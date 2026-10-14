@@ -18,3 +18,22 @@ export function detectFaces(input){
  faces.sort((a,b)=>a.area-b.area);for(let i=0;i<faces.length;i++){const f=faces[i];for(let j=i+1;j<faces.length;j++){const parent=faces[j];if(f.ring.slice(0,-1).every(p=>contains(p,parent.ring))){parent.holes.push(f.ring);break;}}}return faces.map((f,i)=>({...f,id:i}));
 }
 export function pathString(f){return [f.ring,...f.holes].map(r=>'M'+r.map(p=>p.join(',')).join('L')+'Z').join('');}
+
+// Check each CAD segment against the finite, collinear exported PDF segments.
+// A renderer may split a line; the union must cover the entire source span.
+export function sourceSegmentsRetained(source,output,tolerance=.001){
+ return source.every(([a,b])=>{
+  const dx=b[0]-a[0],dy=b[1]-a[1],length=Math.hypot(dx,dy);
+  if(length<=tolerance)return true;
+  const intervals=[];
+  for(const[c,d]of output){
+   const distance=p=>Math.abs(dx*(p[1]-a[1])-dy*(p[0]-a[0]))/length;
+   if(distance(c)>tolerance||distance(d)>tolerance)continue;
+   const project=p=>((p[0]-a[0])*dx+(p[1]-a[1])*dy)/length;
+   const u=project(c),v=project(d);intervals.push([Math.min(u,v),Math.max(u,v)]);
+  }
+  intervals.sort((x,y)=>x[0]-y[0]);let covered=0;
+  for(const[start,end]of intervals){if(end<0)continue;if(start>covered+tolerance)break;covered=Math.max(covered,end);if(covered>=length-tolerance)return true;}
+  return false;
+ });
+}
