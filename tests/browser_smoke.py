@@ -30,10 +30,10 @@ with sync_playwright() as p:
  assert abs(page.locator('#sheet').bounding_box()['width']-wheel_width)<.1
  page.locator('#fit').click()
  # Space drag pans a zoomed sheet without painting or changing print scale.
- r=page.locator('#viewport').bounding_box();page.mouse.move(r['x']+r['width']*.6,r['y']+r['height']*.6);page.mouse.wheel(0,-300)
+ r=page.locator('#viewport').bounding_box();page.mouse.move(r['x']+r['width']*.5,r['y']+r['height']*.5);page.mouse.wheel(0,-300)
  page.wait_for_function('document.querySelector("#sheet").getBoundingClientRect().width>'+str(box['width']*1.5))
  before_pan=page.evaluate('({left:document.querySelector("#viewport").scrollLeft,top:document.querySelector("#viewport").scrollTop,scale:ParamountApp.getState().scale,assignments:JSON.stringify(ParamountApp.getState().assignments)})')
- page.locator('#fit').focus();page.keyboard.down('Space');page.mouse.down();page.mouse.move(r['x']+r['width']*.6-60,r['y']+r['height']*.6-40,steps=4);page.mouse.up();page.keyboard.up('Space')
+ page.locator('#fit').focus();page.keyboard.down('Space');page.mouse.down();page.mouse.move(r['x']+r['width']*.5-60,r['y']+r['height']*.5-40,steps=4);page.mouse.up();page.keyboard.up('Space')
  after_pan=page.evaluate('({left:document.querySelector("#viewport").scrollLeft,top:document.querySelector("#viewport").scrollTop,scale:ParamountApp.getState().scale,assignments:JSON.stringify(ParamountApp.getState().assignments)})')
  assert after_pan['left']>before_pan['left']+30,(before_pan,after_pan)
  assert after_pan['top']>before_pan['top']+20,(before_pan,after_pan)
