@@ -61,15 +61,49 @@ with sync_playwright() as p:
  assert page.evaluate('ParamountApp.getState().manualFaces[0].holes.length')==1
  page.evaluate('document.querySelector("#reflection").value="0.7"')
  page.locator('#reflection').dispatch_event('input')
+ # Texture size is an area override, retained without changing paper scale.
+ page.locator('#paint-layers').evaluate('e=>e.open=true')
+ page.locator(f'#layer-list button[data-layer="{wall_id}"]').click()
+ before_order=page.evaluate('JSON.stringify(ParamountApp.getState().paintOrder)')
+ page.locator('#texture-size').fill('50')
+ page.locator('#edit-texture').click()
+ page.wait_for_function('(ParamountApp.getState().textureScales['+str(wall_id)+']||1)===.5')
+ assert page.evaluate('JSON.stringify(ParamountApp.getState().paintOrder)')==before_order
+ page.evaluate('''async()=>{const {MaterialRenderer,FINISHES}=await import('./renderer.js'),s=ParamountApp.getState(),c=document.createElement('canvas'),r=new MaterialRenderer(c),id=s.faces.reduce((a,b)=>a.area>b.area?a:b).id;await r.draw(s.faces,{[id]:'brick'},s.width,s.height,100,36,-45,.5,null,{textureScales:{[id]:1}});const a=r.gl.getUniform(r.program,r.gl.getUniformLocation(r.program,'repeats'))[0];await r.draw(s.faces,{[id]:'brick'},s.width,s.height,100,36,-45,.5,null,{textureScales:{[id]:.5}});const b=r.gl.getUniform(r.program,r.gl.getUniformLocation(r.program,'repeats'))[0];if(Math.abs(b/a-2)>.0001)throw Error('Half-size texture did not double repeats');if(FINISHES.glass.tint[1]<=FINISHES.glass.tint[2])throw Error('Default glass is not greener');}''')
+ # A later overlapping white mask must cover the earlier photo finish.
+ page.select_option('#material-category','Frames & metal')
+ page.locator('#palette button[data-material="white"]').click()
+ page.locator('#lasso').click()
+ for point in [(130,60),(210,60),(210,150),(130,150)]:corner(*point)
+ page.locator('#close-lasso').click();page.locator('#manual-review').check();page.locator('#apply-selection').click()
+ page.wait_for_function('ParamountApp.getState().manualFaces.length===2')
+ overlay_id=page.evaluate('ParamountApp.getState().manualFaces[1].id')
+ def pixel(x,y):
+  return page.evaluate('''([x,y])=>{const s=ParamountApp.getState(),c=document.querySelector('#finishes'),g=c.getContext('webgl2'),p=new Uint8Array(4);g.readPixels(Math.floor(x*c.width/s.width),Math.floor((s.height-y)*c.height/s.height),1,1,g.RGBA,g.UNSIGNED_BYTE,p);return [...p];}''',[x,y])
+ page.wait_for_function('document.querySelector("#layer-list").lastChild!==null')
+ # Wait for the scheduled material render to finish via the public API.
+ page.evaluate('async()=>{const s=ParamountApp.getState();await ParamountApp.assign(s.manualFaces[1].id,"white");}')
+ assert pixel(155,125)[0]>200,pixel(155,125)
+ page.locator(f'#layer-list button[data-layer="{overlay_id}"]').click()
+ page.locator('#layer-back').click()
+ page.wait_for_function('ParamountApp.getState().paintOrder[0]==='+str(overlay_id))
+ page.wait_for_timeout(300)
+ assert pixel(155,125)[0]<180,pixel(155,125)
+ page.locator('#layer-front').click()
+ page.wait_for_function('ParamountApp.getState().paintOrder.at(-1)==='+str(overlay_id))
+ page.wait_for_timeout(300)
+ assert pixel(155,125)[0]>200,pixel(155,125)
  with page.expect_download(timeout=180000) as saved:
   page.locator('#save-project').click()
  saved.value.save_as(ROOT/'browser-smoke-project.json')
  saved_project=json.loads((ROOT/'browser-smoke-project.json').read_text())
  assert saved_project['customFinishes'][photo_id]['mode']==2
+ assert saved_project['textureScales'][str(wall_id)]==.5
+ assert saved_project['paintOrder'][-1]==overlay_id
  # Round-trip masks, images and settings, then export through native-vector QA.
  page.evaluate('async()=>{await ParamountApp.open(new Uint8Array(await(await fetch("./demo.pdf")).arrayBuffer()),"Sample-elevation.pdf");}')
  page.locator('#restore').set_input_files(str(ROOT/'browser-smoke-project.json'))
- page.wait_for_function('ParamountApp.getState().manualFaces.length===1')
+ page.wait_for_function('ParamountApp.getState().manualFaces.length===2')
  assert page.evaluate('Object.keys(ParamountApp.getState().customFinishes).length')==1
  page.select_option('#dpi','150')
  with page.expect_download(timeout=180000) as tool_export:
@@ -78,7 +112,11 @@ with sync_playwright() as p:
  assert tools_qa['reviewed_rendering_masks'][0]['cad_verified'] is False
  assert tools_qa['reviewed_rendering_masks'][0]['manual_review_confirmed'] is True
  assert tools_qa['photo_materials'][0]['reflection'] is True
+ assert tools_qa['finish_draw_order_bottom_to_top'][-1]==overlay_id
+ assert tools_qa['texture_size_multipliers'][str(wall_id)]==.5
  tool_export.value.save_as(ROOT/'browser-smoke-tools-export.pdf')
+ import fitz
+ exported=fitz.open(ROOT/'browser-smoke-tools-export.pdf');pix=exported[0].get_pixmap();assert pix.pixel(155,125)[0]>200,pix.pixel(155,125)
  (ROOT/'browser-smoke-tools-qa.json').write_text(json.dumps(tools_qa,indent=2))
  page.screenshot(path=str(ROOT/'browser-smoke-tools-preview.png'),full_page=True)
  page.select_option('#dpi','150')

@@ -118,3 +118,18 @@ by category. Finish IDs are stable so older saved projects remain compatible.
 The app bundles textures locally; provider APIs are used only when preparing
 new assets. Additional photo provenance is in public/assets/library/manifest.json.
 All texture repeat sizes and RAL screen colours require product review.
+
+## Draw order and texture size
+
+Finishes paint from bottom to top in application order: the last applied finish
+covers earlier overlapping finishes. Render draw order lists the topmost entry
+first; select an entry to Bring to front, Send to back or Move up/down. Original
+CAD linework stays above all material layers. PDF export follows the same order.
+Opening exclusions stay transparent and reveal finishes beneath them.
+
+Select a rendered area with the wand or layer list, change Texture size (%) and
+press Update texture size. 50% gives half-size bricks; 200% doubles their size.
+New outlines use the size set before Apply selected finish. This changes only
+the physical material repeat, not CAD coordinates or paper scale. Glass uses
+continuous reflections instead of tiled bricks and now has greener default tint
+and interior shading. Saved projects and QA include order and texture sizes.
