@@ -10,3 +10,5 @@
 
 The application uses pinned CDN modules. A self-contained distribution should
 also include all upstream notices and runtime package licences.
+
+Bundled Liberation Sans font: SIL Open Font License 1.1; see public/fonts/LICENSE.txt.
