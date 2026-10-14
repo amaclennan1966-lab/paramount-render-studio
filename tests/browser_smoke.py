@@ -104,6 +104,8 @@ with sync_playwright() as p:
  page.wait_for_function('ParamountApp.getState().manualFaces[0].ring[0][0]<58')
  assert page.evaluate('ParamountApp.getState().manualFaces.length')==1
  assert page.evaluate('ParamountApp.getState().manualFaces[0].id')==manual_id
+ page.locator(f'#regions path[data-face="{manual_id}"]').dispatch_event('click')
+ assert page.locator('#selection-controls').is_visible()
  assert max(abs(a-b) for a,b in zip(page.evaluate('ParamountApp.getState().manualFaces[0].holes[0][0]'),[85,80]))<2
  page.locator('#undo').click()
  assert page.evaluate('ParamountApp.getState().manualFaces[0].ring[0]')==before_ring
