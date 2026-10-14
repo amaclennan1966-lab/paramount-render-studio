@@ -1,14 +1,16 @@
 {
-  "status": "BROWSER_VERIFIED_AWAITING_PAGES_ENABLEMENT",
+  "status": "PUBLISHED_GITHUB_PAGES",
   "checks": {
     "javascript_syntax": "PASS",
     "source_boundary_tests": "6 PASS",
     "python_dxf_import_tests": "2 PASS",
     "browser_pdf_export": "PASS",
     "browser_dxf_export_1_to_50": "PASS",
-    "github_publication": "SOURCE_UPLOADED"
+    "github_publication": "PASS"
   },
   "verification_run": "https://github.com/amaclennan1966-lab/paramount-render-studio/actions/runs/38584252827",
-  "deployment_blocker": "Enable Settings > Pages > Source > GitHub Actions, then re-run failed workflow jobs.",
-  "privacy": "No customer drawings included."
+  "privacy": "No customer drawings included.",
+  "deployment_url": "https://amaclennan1966-lab.github.io/paramount-render-studio/",
+  "deployment_run": "https://github.com/amaclennan1966-lab/paramount-render-studio/actions/runs/38584563251",
+  "verification_scope": "PDF and DXF browser import/export tested in GitHub Actions. Production Pages deployment succeeded; a separate live browser navigation was unavailable."
 }
