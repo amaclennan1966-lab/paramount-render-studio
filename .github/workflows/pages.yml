@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '22'
       - run: node tests/geometry.test.js
-      - run: node --check app.js && node --check renderer.js && node --check pdf-input.js
+      - run: node --check app.js && node --check renderer.js && node --check material-library.js && node --check pdf-input.js
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
