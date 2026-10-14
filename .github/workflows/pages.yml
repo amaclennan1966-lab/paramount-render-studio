@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install ezdxf==1.4.4 playwright
+      - run: pip install ezdxf==1.4.4 Pillow playwright
       - run: python tests/test_cad_import.py
       - run: playwright install --with-deps chromium
       - run: python tests/browser_smoke.py

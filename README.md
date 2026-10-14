@@ -17,9 +17,9 @@ Free GitHub Pages hosting applies to eligible public repositories within GitHub'
 usage limits. It does not provide free server-side GPU rendering. This app uses
 WebGL on the user's own device instead.
 
-The GitHub connection available in the chat can write accessible repository files
-but cannot create repositories or configure repository administration. Create the
-repository once and provide its URL so the project can be uploaded there.
+Repository: https://github.com/amaclennan1966-lab/paramount-render-studio
+
+Pages must use GitHub Actions as its source in repository Settings.
 
 ## Use
 
@@ -72,7 +72,7 @@ Open `http://localhost:8080`. No npm install or application build is needed.
 
 ```sh
 node tests/geometry.test.js
-pip install ezdxf==1.4.4
+pip install ezdxf==1.4.4 Pillow
 python tests/test_cad_import.py
 # Browser test (requires Chromium and network access for pinned CDN modules):
 pip install playwright
