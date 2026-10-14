@@ -1,6 +1,6 @@
 """CI runs real browser imports, materials, original-vector QA and export."""
 from pathlib import Path
-import http.server,threading,functools,json
+import http.server,threading,functools,json,ezdxf
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
 server=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(http.server.SimpleHTTPRequestHandler,directory=str(ROOT)))
@@ -35,5 +35,19 @@ with sync_playwright() as p:
  dxf_download.value.save_as(ROOT/'browser-smoke-dxf-export.pdf')
  (ROOT/'browser-smoke-dxf-qa.json').write_text(json.dumps(dxf_qa,indent=2))
  assert not errors,errors
+ oversized=ROOT/'browser-smoke-oversized.dxf'
+ doc=ezdxf.new();doc.units=4;doc.modelspace().add_lwpolyline([(0,0),(50000,0),(50000,3000),(0,3000)],close=True);doc.saveas(oversized)
+ page.locator('#drawing').set_input_files(str(oversized))
+ page.locator('#retry-scale').wait_for(state='visible',timeout=120000)
+ assert 'Traceback' not in page.locator('#status').inner_text()
+ assert page.locator('#export').is_disabled()
+ assert page.locator('#retry-scale').inner_text()=='Retry at 1:200'
+ page.locator('#retry-scale').click()
+ page.wait_for_function('ParamountApp.getState().filename === "browser-smoke-oversized.dxf" && ParamountApp.getState().scale === 200',timeout=120000)
+ page.wait_for_function('document.querySelector("#busy").hidden')
+ assert not page.locator('#import-error').is_visible()
+ assert page.evaluate('ParamountApp.getState().qa.source_bytes_unchanged')
+ assert not page.locator('#export').is_disabled()
+ page.screenshot(path=str(ROOT/'browser-smoke-scale-recovery.png'),full_page=True)
  browser.close()
 server.shutdown();print('Real browser import, WebGL material and native-vector PDF export passed.')
