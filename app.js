@@ -20,7 +20,7 @@ function remember(){history.push(JSON.stringify({assignments:state.assignments,c
 let selection=null,draft=[],drawingHole=false;
 const libraryFinishes=()=>state?.libraryFinishes||{};
 const finishes=()=>({...FINISHES,...libraryFinishes(),...state?.customFinishes});
-const renderOptions=()=>({customFinishes:state.customFinishes,libraryFinishes:state.libraryFinishes,reflection:Number($('reflection').value)});
+const renderOptions=()=>({customFinishes:{...state.libraryFinishes,...state.customFinishes},reflection:Number($('reflection').value)});
 function cancelSelection(){selection=null;draft=[];drawingHole=false;$('selection-controls').hidden=true;$('manual-review').checked=false;setupRegions();}
 function showSelection(){
  $('selection-controls').hidden=!selection&&!draft.length;
@@ -145,7 +145,7 @@ $('page').onchange=async()=>{try{await open(state.original,state.filename,Number
 $('retry-scale').onclick=async()=>{if(!pendingImport)return;const scale=Number($('retry-scale').dataset.scale);if(![...$('scale').options].some(o=>Number(o.value)===scale)){$('scale').add(new Option('1:'+scale,String(scale)));}$('scale').value=scale;try{await open(pendingImport.bytes,pendingImport.name);}catch(e){fail(e);}};
 $('scale').onchange=async()=>{if(!state&&!pendingImport)return;try{if(pendingImport){await open(pendingImport.bytes,pendingImport.name);return;}if(state.type==='dxf')await open(state.original,state.filename);else{state.scale=Number($('scale').value);await refresh();}}catch(e){fail(e);}};
 $('erase').onclick=()=>{mode='finish';kind='erase';status('Click an area to clear its finish.');};$('undo').onclick=()=>{if(!state||!history.length)return;Object.assign(state,JSON.parse(history.pop()));state.faces=[...state.faces.filter(f=>!f.review),...state.manualFaces];cancelSelection();renderPalette();refresh();};$('reflection').oninput=$('sun').oninput=$('relief').oninput=()=>refresh();$('tree').onclick=()=>{mode='tree';status('Click at ground level to place a background tree.');};$('plan-tree').onclick=()=>{mode='plan';status('Click to place an illustrative plan-view tree.');};$('zoom-in').onclick=()=>{zoom*=1.25;sizeSheet();};$('zoom-out').onclick=()=>{zoom/=1.25;sizeSheet();};$('fit').onclick=fit;window.onresize=fit;
-$('save-project').onclick=()=>{if(state)download(JSON.stringify({version:2,source_sha256:state.sourceHash,page:state.index,scale:state.scale,assignments:state.assignments,context:state.context,manualFaces:state.manualFaces,customFinishes:{...state.libraryFinishes,...state.customFinishes},reflection:Number($('reflection').value)},null,2),'paramount-finish-choices.json','application/json');};
+$('save-project').onclick=()=>{if(state)download(JSON.stringify({version:2,source_sha256:state.sourceHash,page:state.index,scale:state.scale,assignments:state.assignments,context:state.context,manualFaces:state.manualFaces,customFinishes:state.customFinishes,libraryFinishes:state.libraryFinishes,reflection:Number($('reflection').value)},null,2),'paramount-finish-choices.json','application/json');};
 async function restoreProject(p){
  if(!state||p.source_sha256!==state.sourceHash||p.page!==state.index||p.scale!==state.scale)throw Error('Open the matching drawing, page and scale before restoring choices.');
  const custom=p.customFinishes||{},manual=p.manualFaces||[];if(Object.keys(custom).length>12||manual.length>200)throw Error('Too many saved materials or masks.');
