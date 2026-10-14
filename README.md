@@ -145,3 +145,17 @@ confirms the boundary and applies the selected finish. No review checkbox is
 needed. The preview clearly identifies manually defined edges; confirming them
 still records manual review in QA. Held-key repeats cannot accidentally confirm
 a second action; typing in search fields does not apply finishes.
+
+## Editable masks and panning
+
+Preview a finished area using the wand or Render draw order, then choose Edit
+outline. Drag handles on the outer perimeter or opening exclusions; nearby source
+corners and edges snap. Add corner inserts a point on a clicked outline edge;
+Remove corner deletes a clicked handle while retaining at least three points.
+Self-crossings and invalid opening overlaps are rejected. Enter commits the edited
+mask and rechecks its edges for QA; Escape cancels the preview. Undo restores the
+previous mask after a committed edit. Source CAD/PDF lines are never dragged.
+
+Hold Space and drag over the drawing to pan at any zoom. Panning does not paint
+areas, place plants, move mask handles or alter PDF scale. Release Space to resume
+the current tool. Text fields retain their normal Space-key behaviour.

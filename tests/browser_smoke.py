@@ -29,6 +29,16 @@ with sync_playwright() as p:
  wheel_width=page.locator('#sheet').bounding_box()['width'];page.mouse.move(100,400);page.mouse.wheel(0,200);page.wait_for_timeout(100)
  assert abs(page.locator('#sheet').bounding_box()['width']-wheel_width)<.1
  page.locator('#fit').click()
+ # Space drag pans a zoomed sheet without painting or changing print scale.
+ r=page.locator('#viewport').bounding_box();page.mouse.move(r['x']+r['width']*.6,r['y']+r['height']*.6);page.mouse.wheel(0,-300)
+ page.wait_for_function('document.querySelector("#sheet").getBoundingClientRect().width>'+str(box['width']*1.5))
+ before_pan=page.evaluate('({left:document.querySelector("#viewport").scrollLeft,top:document.querySelector("#viewport").scrollTop,scale:ParamountApp.getState().scale,assignments:JSON.stringify(ParamountApp.getState().assignments)})')
+ page.locator('#fit').focus();page.keyboard.down('Space');page.mouse.down();page.mouse.move(r['x']+r['width']*.6-60,r['y']+r['height']*.6-40,steps=4);page.mouse.up();page.keyboard.up('Space')
+ after_pan=page.evaluate('({left:document.querySelector("#viewport").scrollLeft,top:document.querySelector("#viewport").scrollTop,scale:ParamountApp.getState().scale,assignments:JSON.stringify(ParamountApp.getState().assignments)})')
+ assert after_pan['left']>before_pan['left']+30,(before_pan,after_pan)
+ assert after_pan['top']>before_pan['top']+20,(before_pan,after_pan)
+ assert after_pan['scale']==before_pan['scale'] and after_pan['assignments']==before_pan['assignments']
+ page.locator('#fit').click()
  # Library search/filter and GPU rendering of every added photograph.
  page.select_option('#material-category','Frames & metal')
  page.locator('#material-search').fill('RAL 7035')
@@ -75,6 +85,31 @@ with sync_playwright() as p:
  assert page.evaluate('ParamountApp.getState().manualFaces[0].holes.length')==1
  page.evaluate('document.querySelector("#reflection").value="0.7"')
  page.locator('#reflection').dispatch_event('input')
+ # Editing is staged, supports opening handles, and commits without duplicating a mask.
+ manual_id=page.evaluate('ParamountApp.getState().manualFaces[0].id')
+ page.locator('#paint-layers').evaluate('e=>e.open=true')
+ page.locator(f'#layer-list button[data-layer="{manual_id}"]').click();page.locator('#edit-outline').click()
+ def drag_handle(ring,vertex,point):
+  h=page.locator(f'#regions .outline-handle[data-ring="{ring}"][data-vertex="{vertex}"]').bounding_box();r=page.locator('#regions').bounding_box();s=page.evaluate('({w:ParamountApp.getState().width,h:ParamountApp.getState().height})')
+  page.mouse.move(h['x']+h['width']/2,h['y']+h['height']/2);page.mouse.down();page.mouse.move(r['x']+point[0]*r['width']/s['w'],r['y']+point[1]*r['height']/s['h'],steps=4);page.mouse.up()
+ drag_handle(0,0,(55,55))
+ assert page.evaluate('ParamountApp.getState().manualFaces[0].ring[0]')==[60,60]
+ page.locator('#outline-add').click();corner(112.5,57.5)
+ assert page.locator('#regions .outline-handle[data-ring="0"]').count()==5
+ page.locator('#outline-remove').click();page.locator('#regions .outline-handle[data-ring="0"][data-vertex="1"]').click()
+ assert page.locator('#regions .outline-handle[data-ring="0"]').count()==4
+ page.locator('#outline-move').click();drag_handle(1,0,(85,80))
+ page.locator('#outline-move').focus();page.keyboard.press('Enter')
+ page.wait_for_function('ParamountApp.getState().manualFaces[0].ring[0][0]===55')
+ assert page.evaluate('ParamountApp.getState().manualFaces.length')==1
+ assert page.evaluate('ParamountApp.getState().manualFaces[0].id')==manual_id
+ assert page.evaluate('ParamountApp.getState().manualFaces[0].holes[0][0]')==[85,80]
+ page.locator('#undo').click()
+ assert page.evaluate('ParamountApp.getState().manualFaces[0].ring[0]')==[60,60]
+ page.locator(f'#layer-list button[data-layer="{manual_id}"]').click();page.locator('#edit-outline').click();drag_handle(0,0,(55,55))
+ page.keyboard.press('Escape')
+ assert page.evaluate('ParamountApp.getState().manualFaces[0].ring[0]')==[60,60]
+ assert page.locator('#regions .outline-handle').count()==0
  # Texture size is an area override, retained without changing paper scale.
  page.locator('#paint-layers').evaluate('e=>e.open=true')
  page.locator(f'#layer-list button[data-layer="{wall_id}"]').click()
