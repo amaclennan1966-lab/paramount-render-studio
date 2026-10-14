@@ -93,10 +93,10 @@ The sample drawing is synthetic; no customer drawing is included.
 Wand previews a closed source region; choose a finish and Apply selected finish.
 Polygon lasso snaps within 10 screen pixels to source endpoints or finite edges.
 Close outline creates a preview; Cut opening draws an exclusion inside it.
-Edges that do not coincide with source linework require a checked manual review.
+Edges that do not coincide with source linework require explicit confirmation of the preview by Enter or the Apply finish button.
 These are separate presentation masks, recorded in QA with their unmatched edges;
 original CAD geometry and PDF streams remain unchanged. Self-intersecting outlines
-and overlapping/outside exclusions are rejected. Escape cancels; Enter closes.
+and overlapping/outside exclusions are rejected. Escape cancels; Enter closes an outline; Enter again confirms and applies it.
 
 Sample a photo opens a local crop editor. Drag a material rectangle, or click a
 pixel for sampled colour. Choose repeating texture or glass reflection, name it
@@ -133,3 +133,15 @@ New outlines use the size set before Apply selected finish. This changes only
 the physical material repeat, not CAD coordinates or paper scale. Glass uses
 continuous reflections instead of tiled bricks and now has greener default tint
 and interior shading. Saved projects and QA include order and texture sizes.
+
+## Mouse wheel and Return
+
+Wheel over the drawing to zoom around the pointer; the sidebar still scrolls
+normally. View zoom never changes PDF page size, CAD dimensions or print scale.
+Fit sheet resets the viewing zoom. Zoom is bounded between 8% and 800%.
+
+Return/Enter closes a lasso outline. With a completed preview, Return/Enter
+confirms the boundary and applies the selected finish. No review checkbox is
+needed. The preview clearly identifies manually defined edges; confirming them
+still records manual review in QA. Held-key repeats cannot accidentally confirm
+a second action; typing in search fields does not apply finishes.

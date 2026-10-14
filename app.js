@@ -13,6 +13,11 @@ function download(data,name,type){const url=URL.createObjectURL(new Blob([data],
 function faces(segments){return new Promise((resolve,reject)=>{const w=new Worker('./face-worker.js',{type:'module'});w.onmessage=e=>{w.terminate();e.data.error?reject(Error(e.data.error)):resolve(e.data.faces);};w.onerror=e=>{w.terminate();reject(Error(e.message));};w.postMessage(segments);});}
 function dxf(bytes,scale){return new Promise((resolve,reject)=>{if(!dxfWorker)dxfWorker=new Worker('./cad-worker.js');dxfWorker.onmessage=e=>{if(e.data.status)busy(e.data.status);if(e.data.error)reject(Object.assign(Error(e.data.error),{suggestedScale:e.data.suggested_scale}));if(e.data.result)resolve(e.data.result);};dxfWorker.onerror=e=>reject(Error(e.message));dxfWorker.postMessage({bytes:bytes.slice(),scale});});}
 function fit(){if(!state)return;zoom=Math.min(($('viewport').clientWidth-60)/state.width,($('viewport').clientHeight-35)/state.height);zoom=Math.max(.15,zoom);sizeSheet();}
+function zoomAt(factor,clientX,clientY){
+ if(!state||!Number.isFinite(factor))return;const viewport=$('viewport'),sheet=$('sheet'),before=sheet.getBoundingClientRect(),old=zoom,local=[(clientX-before.left)/old,(clientY-before.top)/old];zoom=Math.min(8,Math.max(.08,old*factor));sizeSheet();const after=sheet.getBoundingClientRect();viewport.scrollLeft+=after.left+local[0]*zoom-clientX;viewport.scrollTop+=after.top+local[1]*zoom-clientY;
+}
+function zoomCentre(factor){const r=$('viewport').getBoundingClientRect();zoomAt(factor,r.left+r.width/2,r.top+r.height/2);}
+$('viewport').addEventListener('wheel',e=>{if(!state)return;e.preventDefault();const delta=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?$('viewport').clientHeight:1);zoomAt(Math.exp(-Math.max(-240,Math.min(240,delta))*.0025),e.clientX,e.clientY);},{passive:false});
 function sizeSheet(){if(!state)return;$('sheet').style.width=state.width*zoom+'px';$('sheet').style.height=state.height*zoom+'px';}
 async function draw(dpi=120){if(!state)return;await renderer.draw(state.faces,state.assignments,state.width,state.height,state.scale,dpi,Number($('sun').value),Number($('relief').value),null,renderOptions());const f=$('finishes');contexts.width=f.width;contexts.height=f.height;await drawContext(contexts.getContext('2d'),state.context,f.width/state.width);$('selection-count').textContent=Object.keys(state.assignments).length+' finishes selected';renderLayers();}
 function refresh(){renderPending=renderPending.catch(()=>{}).then(()=>draw()).catch(fail);return renderPending;}
@@ -20,7 +25,7 @@ function remember(){history.push(JSON.stringify({assignments:state.assignments,c
 let selection=null,draft=[],drawingHole=false;
 const finishes=()=>({...FINISHES,...state?.customFinishes});
 const renderOptions=()=>({customFinishes:state.customFinishes,paintOrder:state.paintOrder,textureScales:state.textureScales,reflection:Number($('reflection').value)});
-function cancelSelection(){selection=null;draft=[];drawingHole=false;$('selection-controls').hidden=true;$('manual-review').checked=false;setupRegions();}
+function cancelSelection(){selection=null;draft=[];drawingHole=false;$('selection-controls').hidden=true;setupRegions();}
 function renderLayers(){if(!state)return;const container=$('layer-list');container.replaceChildren();for(const id of orderedIds(state.assignments,state.paintOrder).reverse()){const b=document.createElement('button');b.textContent=finishes()[state.assignments[id]].label+' · area '+(id+1)+' · '+Math.round((state.textureScales[id]||1)*100)+'%';b.dataset.layer=id;b.onclick=()=>{const f=state.faces.find(f=>f.id===id);selection={...f,ring:f.ring.map(p=>[...p]),holes:f.holes.map(h=>h.map(p=>[...p])),sourceId:id,edited:false};draft=[];kind=state.assignments[id];mode='finish';showSelection();renderPalette();status('Area selected. Adjust texture size or move its render layer.');};container.append(b);}}
 function reorderSelection(direction){const id=selection?.sourceId;if(id===undefined||!state.assignments[id])return status('Select an existing rendered area first.');remember();state.paintOrder=moveLayer(state.assignments,state.paintOrder,id,direction);lastQA=null;setupRegions();refresh();status('Render order updated. CAD linework stays on top.');}
 $('layer-front').onclick=()=>reorderSelection('front');$('layer-back').onclick=()=>reorderSelection('back');$('layer-up').onclick=()=>reorderSelection('up');$('layer-down').onclick=()=>reorderSelection('down');
@@ -29,10 +34,10 @@ $('edit-texture').onclick=()=>{const id=selection?.sourceId,value=Number($('text
 function showSelection(){
  $('texture-size').value=Math.round((state.textureScales[selection?.sourceId]||1)*100);
  $('selection-controls').hidden=!selection&&!draft.length;
- $('manual-review').checked=false;
+ 
  const review=selection?boundaryReview(selection,state.segments):null;
  $('manual-review-label').hidden=!review||review.cad_verified;
- $('boundary-note').textContent=draft.length?`${draft.length} corners. Close the outline when ready.`:review?.cad_verified?'Boundary follows source drawing edges.':review?`${review.unmatched_edges.length} edges are manually defined. Review before applying.`:'';
+ $('boundary-note').textContent=draft.length?`${draft.length} corners. Close the outline when ready.`:review?.cad_verified?'Boundary follows source drawing edges.':review?`${review.unmatched_edges.length} edges are manually defined. Review the preview; Enter confirms and renders this boundary.`:'';
  $('apply-selection').disabled=!selection||draft.length>0;
  setupRegions();
 }
@@ -45,7 +50,7 @@ function closeLasso(){try{
 function applySelection(){try{
  if(!selection||draft.length)throw Error('Close and review an outline first.');
  const review=boundaryReview(selection,state.segments);
- if(!review.cad_verified&&!$('manual-review').checked)throw Error('Review the manually defined boundary and tick the box before applying.');
+ // Applying via Enter or the button explicitly confirms the previewed manual mask.
  const size=Number($('texture-size').value)/100;if(!Number.isFinite(size)||size<.1||size>4)throw Error('Texture size must be between 10% and 400%.');
  remember();let id=selection.sourceId;
  if(selection.edited){id=Math.max(-1,...state.faces.map(f=>f.id))+1;const f={id,ring:selection.ring,holes:selection.holes,area:selection.area,review:{...review,manual_review_confirmed:!review.cad_verified}};state.manualFaces.push(f);state.faces.push(f);if(selection.sourceId!==undefined){delete state.assignments[selection.sourceId];delete state.textureScales[selection.sourceId];state.paintOrder=state.paintOrder.filter(x=>x!==selection.sourceId);}}
@@ -57,7 +62,12 @@ $('lasso').onclick=()=>{cancelSelection();mode='lasso';status('Click perimeter c
 $('close-lasso').onclick=closeLasso;$('lasso-back').onclick=()=>{draft.pop();showSelection();};
 $('cut-opening').onclick=()=>{if(!selection)return status('Select or draw the outer area first.');drawingHole=true;draft=[];mode='lasso';status('Click around the opening, then Close outline.');};
 $('apply-selection').onclick=applySelection;$('cancel-selection').onclick=()=>{cancelSelection();mode='finish';};
-document.addEventListener('keydown',e=>{if(e.target.matches('input,select,textarea')||$('photo-dialog').open)return;if(e.key==='Escape'){cancelSelection();mode='finish';}if(e.key==='Enter'&&mode==='lasso'){e.preventDefault();closeLasso();}});
+document.addEventListener('keydown',e=>{
+ if(e.repeat||!$('busy').hidden||$('photo-dialog').open)return;
+ if(e.target.matches('input,select,textarea')&&e.target.id!=='texture-size')return;
+ if(e.key==='Escape'){cancelSelection();mode='finish';}
+ if(e.key==='Enter'&&state){if(mode==='lasso'&&draft.length){e.preventDefault();closeLasso();}else if(selection&&!draft.length){e.preventDefault();applySelection();}}
+});
 let photo=null,crop=null,photoStart=null,samplePixel=[0,0];
 function paintPhoto(){if(!photo)return;const c=$('photo-crop'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(photo,0,0,c.width,c.height);if(crop){ctx.strokeStyle='#ffbe35';ctx.lineWidth=3;ctx.strokeRect(crop.x,crop.y,crop.w,crop.h);}}
 $('material-photo').onchange=async()=>{try{const file=$('material-photo').files[0];if(!file)return;if(file.size>15*1024*1024)throw Error('Choose a photo smaller than 15 MB.');const url=URL.createObjectURL(file);try{photo=await loadImage(url);}finally{URL.revokeObjectURL(url);}if(photo.naturalWidth*photo.naturalHeight>50000000)throw Error('Choose a photo below 50 megapixels.');const c=$('photo-crop');c.width=640;c.height=Math.max(100,Math.round(640*photo.naturalHeight/photo.naturalWidth));crop=null;samplePixel=[0,0];$('photo-name').value=file.name.replace(/\.[^.]+$/,'').slice(0,60);paintPhoto();$('photo-dialog').showModal();}catch(e){fail(e);}finally{$('material-photo').value='';}};
@@ -101,7 +111,7 @@ $('demo').onclick=async()=>{try{await open(new Uint8Array(await(await fetch('./d
 $('page').onchange=async()=>{try{await open(state.original,state.filename,Number($('page').value));}catch(e){fail(e);}};
 $('retry-scale').onclick=async()=>{if(!pendingImport)return;const scale=Number($('retry-scale').dataset.scale);if(![...$('scale').options].some(o=>Number(o.value)===scale)){$('scale').add(new Option('1:'+scale,String(scale)));}$('scale').value=scale;try{await open(pendingImport.bytes,pendingImport.name);}catch(e){fail(e);}};
 $('scale').onchange=async()=>{if(!state&&!pendingImport)return;try{if(pendingImport){await open(pendingImport.bytes,pendingImport.name);return;}if(state.type==='dxf')await open(state.original,state.filename);else{state.scale=Number($('scale').value);await refresh();}}catch(e){fail(e);}};
-$('erase').onclick=()=>{mode='finish';kind='erase';status('Click an area to clear its finish.');};$('undo').onclick=()=>{if(!state||!history.length)return;Object.assign(state,JSON.parse(history.pop()));state.faces=[...state.faces.filter(f=>!f.review),...state.manualFaces];cancelSelection();renderPalette();refresh();};$('reflection').oninput=$('sun').oninput=$('relief').oninput=()=>refresh();$('tree').onclick=()=>{mode='tree';status('Click at ground level to place a background tree.');};$('plan-tree').onclick=()=>{mode='plan';status('Click to place an illustrative plan-view tree.');};$('zoom-in').onclick=()=>{zoom*=1.25;sizeSheet();};$('zoom-out').onclick=()=>{zoom/=1.25;sizeSheet();};$('fit').onclick=fit;window.onresize=fit;
+$('erase').onclick=()=>{mode='finish';kind='erase';status('Click an area to clear its finish.');};$('undo').onclick=()=>{if(!state||!history.length)return;Object.assign(state,JSON.parse(history.pop()));state.faces=[...state.faces.filter(f=>!f.review),...state.manualFaces];cancelSelection();renderPalette();refresh();};$('reflection').oninput=$('sun').oninput=$('relief').oninput=()=>refresh();$('tree').onclick=()=>{mode='tree';status('Click at ground level to place a background tree.');};$('plan-tree').onclick=()=>{mode='plan';status('Click to place an illustrative plan-view tree.');};$('zoom-in').onclick=()=>zoomCentre(1.25);$('zoom-out').onclick=()=>zoomCentre(.8);$('fit').onclick=fit;window.onresize=fit;
 $('save-project').onclick=()=>{if(state)download(JSON.stringify({version:2,source_sha256:state.sourceHash,page:state.index,scale:state.scale,assignments:state.assignments,context:state.context,manualFaces:state.manualFaces,customFinishes:state.customFinishes,paintOrder:state.paintOrder,textureScales:state.textureScales,reflection:Number($('reflection').value)},null,2),'paramount-finish-choices.json','application/json');};
 async function restoreProject(p){
  if(!state||p.source_sha256!==state.sourceHash||p.page!==state.index||p.scale!==state.scale)throw Error('Open the matching drawing, page and scale before restoring choices.');

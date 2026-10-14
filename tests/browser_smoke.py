@@ -15,6 +15,20 @@ with sync_playwright() as p:
  page.wait_for_function('!!window.renderStudioState',timeout=120000)
  summary=page.evaluate('({faces:renderStudioState.faces.length,segments:renderStudioState.segments.length,width:renderStudioState.width,height:renderStudioState.height})')
  assert summary['faces']>=4,summary
+ # Wheel zoom anchors a PDF point while preserving its print scale.
+ initial_scale=page.evaluate('ParamountApp.getState().scale')
+ box=page.locator('#sheet').bounding_box();pointer=[box['x']+box['width']*.6,box['y']+box['height']*.6]
+ def point_under_pointer():
+  r=page.locator('#sheet').bounding_box();return [(pointer[0]-r['x'])/r['width'],(pointer[1]-r['y'])/r['height']]
+ before=point_under_pointer();page.mouse.move(*pointer);page.mouse.wheel(0,-300)
+ page.wait_for_function('document.querySelector("#sheet").getBoundingClientRect().width>'+str(box['width']*1.5))
+ after=point_under_pointer();assert max(abs(a-b) for a,b in zip(before,after))<.005,(before,after)
+ assert page.evaluate('ParamountApp.getState().scale')==initial_scale
+ page.mouse.wheel(0,300)
+ page.wait_for_function('document.querySelector("#sheet").getBoundingClientRect().width<'+str(box['width']*1.1))
+ wheel_width=page.locator('#sheet').bounding_box()['width'];page.mouse.move(100,400);page.mouse.wheel(0,200);page.wait_for_timeout(100)
+ assert abs(page.locator('#sheet').bounding_box()['width']-wheel_width)<.1
+ page.locator('#fit').click()
  # Library search/filter and GPU rendering of every added photograph.
  page.select_option('#material-category','Frames & metal')
  page.locator('#material-search').fill('RAL 7035')
@@ -48,15 +62,15 @@ with sync_playwright() as p:
   r=page.locator('#regions').bounding_box();s=page.evaluate('({width:ParamountApp.getState().width,height:ParamountApp.getState().height})')
   page.mouse.click(r['x']+x*r['width']/s['width'],r['y']+y*r['height']/s['height'])
  for point in [(60,60),(170,60),(170,150),(60,150)]:corner(*point)
- page.locator('#close-lasso').click()
- assert page.locator('#manual-review').is_visible()
+ page.locator('#close-lasso').focus();page.keyboard.press('Enter')
+ assert page.locator('#manual-review-label').is_visible()
+ assert page.locator('#manual-review').count()==0
  page.locator('#cut-opening').click()
  for point in [(90,85),(120,85),(120,115),(90,115)]:corner(*point)
  page.locator('#close-lasso').click()
- page.locator('#apply-selection').click()
  assert page.evaluate('ParamountApp.getState().manualFaces.length')==0
- page.locator('#manual-review').check()
- page.locator('#apply-selection').click()
+ page.locator('#apply-selection').focus()
+ page.keyboard.press('Enter')
  page.wait_for_function('ParamountApp.getState().manualFaces.length===1')
  assert page.evaluate('ParamountApp.getState().manualFaces[0].holes.length')==1
  page.evaluate('document.querySelector("#reflection").value="0.7"')
@@ -75,7 +89,7 @@ with sync_playwright() as p:
  page.locator('#palette button[data-material="white"]').click()
  page.locator('#lasso').click()
  for point in [(130,60),(210,60),(210,150),(130,150)]:corner(*point)
- page.locator('#close-lasso').click();page.locator('#manual-review').check();page.locator('#apply-selection').click()
+ page.locator('#close-lasso').focus();page.keyboard.press('Enter');page.keyboard.press('Enter')
  page.wait_for_function('ParamountApp.getState().manualFaces.length===2')
  overlay_id=page.evaluate('ParamountApp.getState().manualFaces[1].id')
  def pixel(x,y):
