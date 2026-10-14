@@ -1,0 +1,69 @@
+{
+  "license": "CC0 1.0",
+  "license_url": "https://polyhaven.com/license",
+  "assets": [
+    {
+      "name": "Brick Wall 005",
+      "url": "https://polyhaven.com/a/brick_wall_005",
+      "maps": [
+        "Diffuse",
+        "nor_gl",
+        "AO"
+      ],
+      "physical_repeat_mm": [
+        1440,
+        1440
+      ]
+    },
+    {
+      "name": "Grey Roof Tiles 02",
+      "url": "https://polyhaven.com/a/grey_roof_tiles_02",
+      "maps": [
+        "Diffuse",
+        "nor_gl",
+        "AO"
+      ],
+      "physical_repeat_mm": [
+        1500,
+        1500
+      ]
+    },
+    {
+      "name": "Kloofendal 48d Partly Cloudy Puresky",
+      "url": "https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky",
+      "maps": [
+        "tonemapped sky photograph"
+      ]
+    },
+    {
+      "name": "Grass Ground",
+      "url": "https://polyhaven.com/a/grass_ground",
+      "maps": [
+        "Diffuse"
+      ],
+      "physical_repeat_mm": [
+        2510,
+        2510
+      ]
+    },
+    {
+      "name": "stone_brick_wall_001",
+      "url": "https://polyhaven.com/a/stone_brick_wall_001",
+      "license": "CC0 1.0",
+      "use": "Physical-render exact-front edition"
+    },
+    {
+      "name": "tree_small_02",
+      "url": "https://polyhaven.com/a/tree_small_02",
+      "license": "CC0 1.0",
+      "use": "Physical-render exact-front edition"
+    },
+    {
+      "name": "shrub_02",
+      "url": "https://polyhaven.com/a/shrub_02",
+      "license": "CC0 1.0",
+      "use": "Physical-render exact-front edition"
+    }
+  ],
+  "processing": "Downloaded photographic assets verified against provider MD5 hashes; lit textures use normal-map directional lighting and ambient occlusion. Sky photograph cropped and desaturated/darkened for generic reflections. CAD and elevation pixels are never generatively edited."
+}

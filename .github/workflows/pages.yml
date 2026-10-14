@@ -1,0 +1,55 @@
+name: Publish Paramount Render Studio
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tests/geometry.test.js
+      - run: node --check app.js && node --check renderer.js && node --check pdf-input.js
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install ezdxf==1.4.4 playwright
+      - run: python tests/test_cad_import.py
+      - run: playwright install --with-deps chromium
+      - run: python tests/browser_smoke.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-verification
+          path: browser-smoke-*
+          if-no-files-found: ignore
+      - uses: actions/configure-pages@v5
+      - name: Prepare public site files
+        run: |
+          mkdir _site
+          cp *.js *.css index.html cad_import.py demo.pdf demo.dxf _site/
+          cp -r public _site/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish app
+        id: deployment
+        uses: actions/deploy-pages@v4

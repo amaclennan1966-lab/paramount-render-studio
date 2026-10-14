@@ -1,0 +1,5 @@
+node_modules/
+.browser-test/
+__pycache__/
+*.log
+customer-drawings/

@@ -1,0 +1,28 @@
+"""CI runs real browser imports, materials, original-vector QA and export."""
+from pathlib import Path
+import http.server,threading,functools,json
+from playwright.sync_api import sync_playwright
+ROOT=Path(__file__).resolve().parents[1]
+server=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(http.server.SimpleHTTPRequestHandler,directory=str(ROOT)))
+threading.Thread(target=server.serve_forever,daemon=True).start()
+with sync_playwright() as p:
+ browser=p.chromium.launch(headless=True,args=['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader'])
+ page=browser.new_page(accept_downloads=True);errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+ page.goto(f'http://127.0.0.1:{server.server_port}',wait_until='networkidle',timeout=120000)
+ page.wait_for_function('!!window.ParamountApp',timeout=120000)
+ page.get_by_role('button',name='Try a sample elevation').click()
+ page.wait_for_function('!!window.renderStudioState',timeout=120000)
+ summary=page.evaluate('({faces:renderStudioState.faces.length,segments:renderStudioState.segments.length,width:renderStudioState.width,height:renderStudioState.height})')
+ assert summary['faces']>=4,summary
+ page.evaluate('async()=>{const s=ParamountApp.getState(); const wall=[...s.faces].sort((a,b)=>b.area-a.area)[0]; await ParamountApp.assign(wall.id,"stone");}')
+ page.select_option('#dpi','150')
+ with page.expect_download(timeout=180000) as download:
+  qa=page.evaluate('async()=>{const r=await ParamountApp.exportPDF();return r.qa;}')
+ assert qa['status']=='REVIEW_REQUIRED',qa
+ assert all(qa['checks'].values()),qa
+ download.value.save_as(ROOT/'browser-smoke-export.pdf')
+ page.screenshot(path=str(ROOT/'browser-smoke-preview.png'),full_page=True)
+ assert not errors,errors
+ (ROOT/'browser-smoke-qa.json').write_text(json.dumps(qa,indent=2))
+ browser.close()
+server.shutdown();print('Real browser import, WebGL material and native-vector PDF export passed.')

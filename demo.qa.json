@@ -1,0 +1,352 @@
+{
+  "project": "Paramount Home Improvements",
+  "prototype_version": "0.1.0",
+  "status": "REVIEW_REQUIRED",
+  "geometry_and_scale_checks_passed": true,
+  "checks": {
+    "source_bytes_unchanged": true,
+    "cad_entity_inventory_unchanged": true,
+    "cad_dimensions_unchanged": true,
+    "cad_model_extents_unchanged": true,
+    "pdf_coordinates_verified": true,
+    "source_line_dimensions_verified": true,
+    "pdf_a3_landscape_verified": true,
+    "pdf_finish_representation_valid": true
+  },
+  "source": {
+    "path": "/workspace/paramount-render-app/demo.dxf",
+    "sha256_before": "71ce6ccd4833280602f7df12ce48323172074bbbe21b5dba70ae3dae72005847",
+    "sha256_after": "71ce6ccd4833280602f7df12ce48323172074bbbe21b5dba70ae3dae72005847",
+    "units": "millimetres",
+    "model_space_scale": "1:1",
+    "entity_count": 79,
+    "inventory_sha256_before": "2cb004e435da812e12f27659a460343ffec6b68110f4ed3d5c1005cf92b13eb6",
+    "inventory_sha256_after": "2cb004e435da812e12f27659a460343ffec6b68110f4ed3d5c1005cf92b13eb6"
+  },
+  "original_model_extents_mm": {
+    "min": [
+      -150.0,
+      -1100.6426657736101,
+      0.0
+    ],
+    "max": [
+      9150.0,
+      5700.0,
+      0.0
+    ]
+  },
+  "finished_cad_model_extents_mm": {
+    "min": [
+      -150.0,
+      -1100.6426657736101,
+      0.0
+    ],
+    "max": [
+      9150.0,
+      5700.0,
+      0.0
+    ]
+  },
+  "dimensions": [
+    {
+      "handle": "39",
+      "measurement": 9000.0
+    }
+  ],
+  "changed_entity_handles": [],
+  "export": {
+    "path": "/workspace/paramount-render-app/demo.pdf",
+    "pdf_sha256": "1529a323ae72c6858384c56f566eb69e2988f68d874533516f69a9d93510ed08",
+    "layout": "Model space on new A3 sheet",
+    "model_to_paper_scale": 0.02,
+    "scale_label": "1:50",
+    "auto_fit": false,
+    "viewport_count": 1,
+    "coordinate_transform": {
+      "linework_mm_to_paper_mm_scale": 0.02,
+      "offset_paper_mm": [
+        120.0,
+        117.5064266577361
+      ]
+    },
+    "maximum_transform_inverse_error_mm": 2.7284841053187847e-12,
+    "a3_landscape": true,
+    "page_size_mm": [
+      419.999936111111,
+      297.0000127777778
+    ],
+    "page_count": 1,
+    "vector_only": true,
+    "original_linework_is_vector": true,
+    "linework_operator_count": 1254,
+    "linework_coordinates_match": true,
+    "maximum_pdf_coordinate_roundoff_model_mm": 0.000881921187646147,
+    "coordinate_tolerance_model_mm": 0.01,
+    "pdf_layers": [
+      "sky",
+      "trees",
+      "PresentationMask",
+      "physical_context",
+      "stone_surrounds",
+      "door_finish",
+      "brickwork",
+      "glazing",
+      "roofing",
+      "pvcu",
+      "stone",
+      "guttering",
+      "landscaping",
+      "shadows",
+      "person",
+      "OriginalLinework",
+      "TitleBlock"
+    ],
+    "source_line_dimensions_verified": true,
+    "verified_source_lines": [
+      {
+        "handle": "2F/edge:0",
+        "source_length_mm": 9000.0,
+        "pdf_length_paper_mm": 179.99999277777775,
+        "measured_model_length_mm": 8999.999638888887,
+        "absolute_error_model_mm": 0.00036111111330683343
+      },
+      {
+        "handle": "2F/edge:1",
+        "source_length_mm": 3000.0,
+        "pdf_length_paper_mm": 59.999985833333334,
+        "measured_model_length_mm": 2999.9992916666665,
+        "absolute_error_model_mm": 0.0007083333334776398
+      },
+      {
+        "handle": "2F/edge:2",
+        "source_length_mm": 9000.0,
+        "pdf_length_paper_mm": 179.99999277777775,
+        "measured_model_length_mm": 8999.999638888887,
+        "absolute_error_model_mm": 0.00036111111330683343
+      },
+      {
+        "handle": "2F/edge:3",
+        "source_length_mm": 3000.0,
+        "pdf_length_paper_mm": 59.999985833333334,
+        "measured_model_length_mm": 2999.9992916666665,
+        "absolute_error_model_mm": 0.0007083333334776398
+      },
+      {
+        "handle": "30/edge:0",
+        "source_length_mm": 9300.0,
+        "pdf_length_paper_mm": 186.00000194444442,
+        "measured_model_length_mm": 9300.00009722222,
+        "absolute_error_model_mm": 9.722222057462204e-05
+      },
+      {
+        "handle": "30/edge:1",
+        "source_length_mm": 5377.034498680477,
+        "pdf_length_paper_mm": 107.5406815581918,
+        "measured_model_length_mm": 5377.03407790959,
+        "absolute_error_model_mm": 0.0004207708861940773
+      },
+      {
+        "handle": "30/edge:2",
+        "source_length_mm": 5377.034498680477,
+        "pdf_length_paper_mm": 107.5407120660225,
+        "measured_model_length_mm": 5377.035603301125,
+        "absolute_error_model_mm": 0.001104620648220589
+      },
+      {
+        "handle": "31/edge:0",
+        "source_length_mm": 1300.0,
+        "pdf_length_paper_mm": 26.00000444444443,
+        "measured_model_length_mm": 1300.0002222222215,
+        "absolute_error_model_mm": 0.0002222222215095826
+      },
+      {
+        "handle": "31/edge:1",
+        "source_length_mm": 1400.0,
+        "pdf_length_paper_mm": 27.999972222222222,
+        "measured_model_length_mm": 1399.9986111111111,
+        "absolute_error_model_mm": 0.001388888888868678
+      },
+      {
+        "handle": "31/edge:2",
+        "source_length_mm": 1300.0,
+        "pdf_length_paper_mm": 26.00000444444443,
+        "measured_model_length_mm": 1300.0002222222215,
+        "absolute_error_model_mm": 0.0002222222215095826
+      },
+      {
+        "handle": "31/edge:3",
+        "source_length_mm": 1400.0,
+        "pdf_length_paper_mm": 27.999972222222222,
+        "measured_model_length_mm": 1399.9986111111111,
+        "absolute_error_model_mm": 0.001388888888868678
+      },
+      {
+        "handle": "32/edge:0",
+        "source_length_mm": 1160.0,
+        "pdf_length_paper_mm": 23.2000072222222,
+        "measured_model_length_mm": 1160.0003611111101,
+        "absolute_error_model_mm": 0.000361111110123602
+      },
+      {
+        "handle": "32/edge:1",
+        "source_length_mm": 1260.0,
+        "pdf_length_paper_mm": 25.199974999999995,
+        "measured_model_length_mm": 1259.9987499999997,
+        "absolute_error_model_mm": 0.0012500000002546585
+      },
+      {
+        "handle": "32/edge:2",
+        "source_length_mm": 1160.0,
+        "pdf_length_paper_mm": 23.2000072222222,
+        "measured_model_length_mm": 1160.0003611111101,
+        "absolute_error_model_mm": 0.000361111110123602
+      },
+      {
+        "handle": "32/edge:3",
+        "source_length_mm": 1260.0,
+        "pdf_length_paper_mm": 25.199974999999995,
+        "measured_model_length_mm": 1259.9987499999997,
+        "absolute_error_model_mm": 0.0012500000002546585
+      },
+      {
+        "handle": "33/edge:0",
+        "source_length_mm": 1300.0,
+        "pdf_length_paper_mm": 26.000004444444468,
+        "measured_model_length_mm": 1300.0002222222233,
+        "absolute_error_model_mm": 0.000222222223328572
+      },
+      {
+        "handle": "33/edge:1",
+        "source_length_mm": 1400.0,
+        "pdf_length_paper_mm": 27.999972222222222,
+        "measured_model_length_mm": 1399.9986111111111,
+        "absolute_error_model_mm": 0.001388888888868678
+      },
+      {
+        "handle": "33/edge:2",
+        "source_length_mm": 1300.0,
+        "pdf_length_paper_mm": 26.000004444444468,
+        "measured_model_length_mm": 1300.0002222222233,
+        "absolute_error_model_mm": 0.000222222223328572
+      },
+      {
+        "handle": "33/edge:3",
+        "source_length_mm": 1400.0,
+        "pdf_length_paper_mm": 27.999972222222222,
+        "measured_model_length_mm": 1399.9986111111111,
+        "absolute_error_model_mm": 0.001388888888868678
+      },
+      {
+        "handle": "34/edge:0",
+        "source_length_mm": 1160.0,
+        "pdf_length_paper_mm": 23.2000072222222,
+        "measured_model_length_mm": 1160.0003611111101,
+        "absolute_error_model_mm": 0.000361111110123602
+      },
+      {
+        "handle": "34/edge:1",
+        "source_length_mm": 1260.0,
+        "pdf_length_paper_mm": 25.199974999999995,
+        "measured_model_length_mm": 1259.9987499999997,
+        "absolute_error_model_mm": 0.0012500000002546585
+      },
+      {
+        "handle": "34/edge:2",
+        "source_length_mm": 1160.0,
+        "pdf_length_paper_mm": 23.2000072222222,
+        "measured_model_length_mm": 1160.0003611111101,
+        "absolute_error_model_mm": 0.000361111110123602
+      },
+      {
+        "handle": "34/edge:3",
+        "source_length_mm": 1260.0,
+        "pdf_length_paper_mm": 25.199974999999995,
+        "measured_model_length_mm": 1259.9987499999997,
+        "absolute_error_model_mm": 0.0012500000002546585
+      },
+      {
+        "handle": "35/edge:0",
+        "source_length_mm": 1300.0,
+        "pdf_length_paper_mm": 26.00000444444443,
+        "measured_model_length_mm": 1300.0002222222215,
+        "absolute_error_model_mm": 0.0002222222215095826
+      },
+      {
+        "handle": "35/edge:1",
+        "source_length_mm": 1400.0,
+        "pdf_length_paper_mm": 27.999972222222222,
+        "measured_model_length_mm": 1399.9986111111111,
+        "absolute_error_model_mm": 0.001388888888868678
+      },
+      {
+        "handle": "35/edge:2",
+        "source_length_mm": 1300.0,
+        "pdf_length_paper_mm": 26.00000444444443,
+        "measured_model_length_mm": 1300.0002222222215,
+        "absolute_error_model_mm": 0.0002222222215095826
+      },
+      {
+        "handle": "35/edge:3",
+        "source_length_mm": 1400.0,
+        "pdf_length_paper_mm": 27.999972222222222,
+        "measured_model_length_mm": 1399.9986111111111,
+        "absolute_error_model_mm": 0.001388888888868678
+      },
+      {
+        "handle": "36/edge:0",
+        "source_length_mm": 1160.0,
+        "pdf_length_paper_mm": 23.20000722222224,
+        "measured_model_length_mm": 1160.000361111112,
+        "absolute_error_model_mm": 0.0003611111119425914
+      },
+      {
+        "handle": "36/edge:1",
+        "source_length_mm": 1260.0,
+        "pdf_length_paper_mm": 25.199974999999995,
+        "measured_model_length_mm": 1259.9987499999997,
+        "absolute_error_model_mm": 0.0012500000002546585
+      },
+      {
+        "handle": "36/edge:2",
+        "source_length_mm": 1160.0,
+        "pdf_length_paper_mm": 23.20000722222224,
+        "measured_model_length_mm": 1160.000361111112,
+        "absolute_error_model_mm": 0.0003611111119425914
+      },
+      {
+        "handle": "36/edge:3",
+        "source_length_mm": 1260.0,
+        "pdf_length_paper_mm": 25.199974999999995,
+        "measured_model_length_mm": 1259.9987499999997,
+        "absolute_error_model_mm": 0.0012500000002546585
+      }
+    ],
+    "missing_source_line_handles": [],
+    "maximum_source_line_length_error_model_mm": 0.001388888888868678,
+    "patterned_entities_excluded_from_independent_endpoint_check": []
+  },
+  "materials": [],
+  "texture_assets": {},
+  "finish_specification": null,
+  "presentation_landscaping": null,
+  "presentation_scene": null,
+  "review_items": [
+    "Unassigned closed boundary 2F on layer 0: left unrendered",
+    "Unassigned closed boundary 30 on layer 0: left unrendered",
+    "Unassigned closed boundary 31 on layer 0: left unrendered",
+    "Unassigned closed boundary 32 on layer 0: left unrendered",
+    "Unassigned closed boundary 33 on layer 0: left unrendered",
+    "Unassigned closed boundary 34 on layer 0: left unrendered",
+    "Unassigned closed boundary 35 on layer 0: left unrendered",
+    "Unassigned closed boundary 36 on layer 0: left unrendered"
+  ],
+  "limitations": [
+    "Photographic textures are raster finishes; original CAD linework, annotations and title block remain vector.",
+    "Finishes require explicit simple WCS XY polygons or finite CAD LINE loops; no gaps are bridged or segments extended.",
+    "Original HATCH entities are outlined so solid CAD fills do not cover finishes.",
+    "PDF coordinates are checked against frontend vector output; this is not an independent CAD-engine equivalence proof.",
+    "Independent dimensional checks cover visible continuous top-level LINE and zero-width straight LWPOLYLINE segments wholly inside each viewport; patterned linework is separately reported.",
+    "Text is exported as vector outlines using fonts available to ezdxf; missing original CAD fonts may alter glyph appearance.",
+    "Physical printing scale requires Actual size / 100%, without printer fit-to-page."
+  ]
+}
