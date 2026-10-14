@@ -108,3 +108,13 @@ finish with interior shading. Reflections are illustrative, not a 3D simulation.
 
 Save finish choices includes reviewed masks, photo crops and reflection strength.
 Restore rechecks mask validity against the matching source sheet and scale.
+
+## Material library
+
+The expanded built-in library has 40 finishes: ten additional checksum-verified
+CC0 photographic surfaces, labelled colour variants, frame/metal colours, glass
+tints and the original finishes. Search by material name or RAL code, or filter
+by category. Finish IDs are stable so older saved projects remain compatible.
+The app bundles textures locally; provider APIs are used only when preparing
+new assets. Additional photo provenance is in public/assets/library/manifest.json.
+All texture repeat sizes and RAL screen colours require product review.

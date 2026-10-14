@@ -1,0 +1,255 @@
+{
+  "license_url": "https://polyhaven.com/license",
+  "materials": [
+    {
+      "id": "sandstone",
+      "label": "Brick & stone bands",
+      "category": "Brick",
+      "asset": "sandstone_brick_wall_01",
+      "source_name": "Sandstone Brick Wall 01",
+      "source_page": "https://polyhaven.com/a/sandstone_brick_wall_01",
+      "license": "CC0 1.0",
+      "tile_mm": 2500,
+      "repeat_note": "Indicative physical repeat; review against actual product dimensions.",
+      "maps": {
+        "diffuse": {
+          "file": "sandstone.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/sandstone_brick_wall_01/sandstone_brick_wall_01_diff_1k.jpg",
+          "source_md5": "b455d0cac83224ad41be76cf9a5f4813",
+          "sha256": "3d125911231559f190fff3a535536e9df33ca7bf82057c978b7db94c55f307bd"
+        },
+        "normal": {
+          "file": "sandstone-normal.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/sandstone_brick_wall_01/sandstone_brick_wall_01_nor_gl_1k.jpg",
+          "source_md5": "8df142cff481ae3786b99b3354a9500f",
+          "sha256": "df66992fa382162e98c0faff4ccc8eed5e05d925891fabce94a489d419974c7b"
+        }
+      }
+    },
+    {
+      "id": "dark-brick",
+      "label": "Weathered brick",
+      "category": "Brick",
+      "asset": "brick_wall_001",
+      "source_name": "Brick Wall 001",
+      "source_page": "https://polyhaven.com/a/brick_wall_001",
+      "license": "CC0 1.0",
+      "tile_mm": 1440,
+      "repeat_note": "Indicative physical repeat; review against actual product dimensions.",
+      "maps": {
+        "diffuse": {
+          "file": "dark-brick.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_wall_001/brick_wall_001_diffuse_1k.jpg",
+          "source_md5": "955d2d4500eb549be0f2873305782798",
+          "sha256": "1590811ff48012cd06173ac7dd535d6bfd3cc2a1d270aab96fc90c2f7a5b6c91"
+        },
+        "normal": {
+          "file": "dark-brick-normal.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_wall_001/brick_wall_001_nor_gl_1k.jpg",
+          "source_md5": "be151875ed0897fc716aeef6daac8bd5",
+          "sha256": "81a9e9f3eff60a66264dea940cd8f8d080967e9a2ac7b7426cc66ec46d878668"
+        }
+      }
+    },
+    {
+      "id": "reclaimed-brick",
+      "label": "Buff brick masonry",
+      "category": "Brick",
+      "asset": "brick_wall_003",
+      "source_name": "Brick Wall 003",
+      "source_page": "https://polyhaven.com/a/brick_wall_003",
+      "license": "CC0 1.0",
+      "tile_mm": 1440,
+      "repeat_note": "Indicative physical repeat; review against actual product dimensions.",
+      "maps": {
+        "diffuse": {
+          "file": "reclaimed-brick.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_wall_003/brick_wall_003_diffuse_1k.jpg",
+          "source_md5": "f917c7eaf958f2805185103adf1f7abb",
+          "sha256": "e613cd30db0f9efa571f2191e5fbc15e81a732287dfa8465639be6423999a21f"
+        },
+        "normal": {
+          "file": "reclaimed-brick-normal.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_wall_003/brick_wall_003_nor_gl_1k.jpg",
+          "source_md5": "4ed30d8ad2ec3587568f38c41ad5c95d",
+          "sha256": "78782d76a23d992ae387d571cd799112848cef7ced6297a058212b72b4717a0d"
+        }
+      }
+    },
+    {
+      "id": "render",
+      "label": "Plaster render",
+      "category": "Render",
+      "asset": "plastered_wall_04",
+      "source_name": "Plastered Wall 04",
+      "source_page": "https://polyhaven.com/a/plastered_wall_04",
+      "license": "CC0 1.0",
+      "tile_mm": 2000,
+      "repeat_note": "Indicative physical repeat; review against actual product dimensions.",
+      "maps": {
+        "diffuse": {
+          "file": "render.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall_04/plastered_wall_04_diff_1k.jpg",
+          "source_md5": "3a45e9e3ff0c6aa179371dff02bded1f",
+          "sha256": "176bf3181a5cf727fec63997ebd574b40e77c79386475f9d65099c93e93a11a1"
+        },
+        "normal": {
+          "file": "render-normal.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall_04/plastered_wall_04_nor_gl_1k.jpg",
+          "source_md5": "f18e649235bb688732fb0ef1d61a5286",
+          "sha256": "49b940af3aea7a48341fefedc0eda3c5009c4af841ae5dd64bc60a3bae4593c4"
+        }
+      }
+    },
+    {
+      "id": "concrete",
+      "label": "Concrete",
+      "category": "Paving",
+      "asset": "concrete_floor_02",
+      "source_name": "Concrete Floor 02",
+      "source_page": "https://polyhaven.com/a/concrete_floor_02",
+      "license": "CC0 1.0",
+      "tile_mm": 2000,
+      "repeat_note": "Indicative physical repeat; review against actual product dimensions.",
+      "maps": {
+        "diffuse": {
+          "file": "concrete.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_floor_02/concrete_floor_02_diff_1k.jpg",
+          "source_md5": "1cfee53d2f82fa59726ab7ae6a2e8c09",
+          "sha256": "c566b1ed5f53a333e0a14eebfdb12167cf074b4e9bfb1c5a1f467a1855c20b80"
+        },
+        "normal": {
+          "file": "concrete-normal.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_floor_02/concrete_floor_02_nor_gl_1k.jpg",
+          "source_md5": "c2065fd81f571f4e39163ea5661128fb",
+          "sha256": "3ce0dc59ab3b7b8ba34c483520238cfa2673095b0d98a5a915b0fd6d987a6c4d"
+        }
+      }
+    },
+    {
+      "id": "paving",
+      "label": "Concrete hex paving",
+      "category": "Paving",
+      "asset": "hexagonal_concrete_paving",
+      "source_name": "Hexagonal Concrete Paving",
+      "source_page": "https://polyhaven.com/a/hexagonal_concrete_paving",
+      "license": "CC0 1.0",
+      "tile_mm": 2000,
+      "repeat_note": "Indicative physical repeat; review against actual product dimensions.",
+      "maps": {
+        "diffuse": {
+          "file": "paving.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/hexagonal_concrete_paving/hexagonal_concrete_paving_diff_1k.jpg",
+          "source_md5": "0b7615a440c026ae5ed24f9e3acaec48",
+          "sha256": "ec0e4532c8529f761ad2135d698237769c920c562a0ae721e1492f3af84fb002"
+        },
+        "normal": {
+          "file": "paving-normal.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/hexagonal_concrete_paving/hexagonal_concrete_paving_nor_gl_1k.jpg",
+          "source_md5": "21961f48592d0179294b38a3423cecc9",
+          "sha256": "4a40ab698888ded05203a73b834d70341f7e2daf1c4ac836918c0ab0c946419a"
+        }
+      }
+    },
+    {
+      "id": "gravel",
+      "label": "Gravel",
+      "category": "Ground",
+      "asset": "gravel_floor_02",
+      "source_name": "Gravel Floor 02",
+      "source_page": "https://polyhaven.com/a/gravel_floor_02",
+      "license": "CC0 1.0",
+      "tile_mm": 2000,
+      "repeat_note": "Indicative physical repeat; review against actual product dimensions.",
+      "maps": {
+        "diffuse": {
+          "file": "gravel.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/gravel_floor_02/gravel_floor_02_diff_1k.jpg",
+          "source_md5": "9e420814367b8ee7a25bcfea10ff4b08",
+          "sha256": "88535796e8f67a1eb65c7f6cca52405a18f9088b5543dba6b2ae4bd7f4e725fd"
+        },
+        "normal": {
+          "file": "gravel-normal.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/gravel_floor_02/gravel_floor_02_nor_gl_1k.jpg",
+          "source_md5": "ed3da750848a3e05faff98bc5b08c491",
+          "sha256": "e08fc49e1e82639ca187c8030be8d92f46fdfce74919fd92e28c0f01adf4a900"
+        }
+      }
+    },
+    {
+      "id": "asphalt",
+      "label": "Asphalt",
+      "category": "Ground",
+      "asset": "asphalt_02",
+      "source_name": "Asphalt 02",
+      "source_page": "https://polyhaven.com/a/asphalt_02",
+      "license": "CC0 1.0",
+      "tile_mm": 2000,
+      "repeat_note": "Indicative physical repeat; review against actual product dimensions.",
+      "maps": {
+        "diffuse": {
+          "file": "asphalt.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_02/asphalt_02_diff_1k.jpg",
+          "source_md5": "fa19772d4817754c3efab708c651f5a8",
+          "sha256": "241ea9b950b83d68ee5e02670a6a9ecb8dbeed594d188726a1866d1a94951f2e"
+        },
+        "normal": {
+          "file": "asphalt-normal.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_02/asphalt_02_nor_gl_1k.jpg",
+          "source_md5": "338da8de636ea36133170578cac82e8e",
+          "sha256": "ffb58cfa76dc34deb4715ea42d10555283d56e6f263029648af7a00e25e1318a"
+        }
+      }
+    },
+    {
+      "id": "timber",
+      "label": "Timber boards",
+      "category": "Timber",
+      "asset": "brown_planks_03",
+      "source_name": "Brown Planks 03",
+      "source_page": "https://polyhaven.com/a/brown_planks_03",
+      "license": "CC0 1.0",
+      "tile_mm": 2000,
+      "repeat_note": "Indicative physical repeat; review against actual product dimensions.",
+      "maps": {
+        "diffuse": {
+          "file": "timber.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_planks_03/brown_planks_03_diff_1k.jpg",
+          "source_md5": "6c9fdc21afcdf171d0a39999392a70f4",
+          "sha256": "e3010126ef367b6dbfb2d496c91b8194b8181d582f1f4bec09772c4e8df54af9"
+        },
+        "normal": {
+          "file": "timber-normal.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_planks_03/brown_planks_03_nor_gl_1k.jpg",
+          "source_md5": "4944cb903b7d7c4029310deb8a51d69e",
+          "sha256": "086e9af2ea5af0448d1715ad8acecd42431fdfbcab0ee043d271702cff7ddfbc"
+        }
+      }
+    },
+    {
+      "id": "roof-tiles",
+      "label": "Aged clay tiles",
+      "category": "Roofing",
+      "asset": "clay_roof_tiles",
+      "source_name": "Clay Roof Tiles",
+      "source_page": "https://polyhaven.com/a/clay_roof_tiles",
+      "license": "CC0 1.0",
+      "tile_mm": 1800,
+      "repeat_note": "Indicative physical repeat; review against actual product dimensions.",
+      "maps": {
+        "diffuse": {
+          "file": "roof-tiles.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/clay_roof_tiles/clay_roof_tiles_diff_1k.jpg",
+          "source_md5": "d862ac9932b09b0918b5971ddb77099c",
+          "sha256": "163846b73b489fbbb8287665d65ac4a975e2376b4a31d39c466904180d8957e1"
+        },
+        "normal": {
+          "file": "roof-tiles-normal.jpg",
+          "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/clay_roof_tiles/clay_roof_tiles_nor_gl_1k.jpg",
+          "source_md5": "d861a708c94c824befc8aac668052776",
+          "sha256": "c8736f5d05349e90da22f86960363e008af65cc1daa339e131e8f7cb5c8f908e"
+        }
+      }
+    }
+  ]
+}

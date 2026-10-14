@@ -15,6 +15,15 @@ with sync_playwright() as p:
  page.wait_for_function('!!window.renderStudioState',timeout=120000)
  summary=page.evaluate('({faces:renderStudioState.faces.length,segments:renderStudioState.segments.length,width:renderStudioState.width,height:renderStudioState.height})')
  assert summary['faces']>=4,summary
+ # Library search/filter and GPU rendering of every added photograph.
+ page.select_option('#material-category','Frames & metal')
+ page.locator('#material-search').fill('RAL 7035')
+ assert page.locator('#palette button').count()==1
+ assert page.locator('#palette button').inner_text().startswith('Light grey frames')
+ page.locator('#material-search').fill('')
+ page.select_option('#material-category','all')
+ assert page.locator('#palette button').count()==40
+ page.evaluate('''async()=>{const {FINISHES,MaterialRenderer}=await import('./renderer.js');const s=ParamountApp.getState(),id=s.faces.reduce((a,b)=>a.area>b.area?a:b).id,c=document.createElement('canvas'),r=new MaterialRenderer(c);for(const key of Object.keys(FINISHES).filter(k=>k.startsWith('library_'))){await r.draw(s.faces,{[id]:key},s.width,s.height,s.scale,36);const pixels=new Uint8Array(c.width*c.height*4);r.gl.readPixels(0,0,c.width,c.height,r.gl.RGBA,r.gl.UNSIGNED_BYTE,pixels);if(!pixels.some((v,i)=>i%4===3&&v>0)||r.gl.getError()!==r.gl.NO_ERROR)throw Error('Material render failed '+key);}}''')
  # Wand previews without committing a finish.
  wall_id=page.evaluate('ParamountApp.getState().faces.reduce((a,b)=>a.area>b.area?a:b).id')
  page.locator(f'#regions path[data-face="{wall_id}"]').dispatch_event('click')

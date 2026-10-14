@@ -65,5 +65,7 @@
       "use": "Physical-render exact-front edition"
     }
   ],
-  "processing": "Downloaded photographic assets verified against provider MD5 hashes; lit textures use normal-map directional lighting and ambient occlusion. Sky photograph cropped and desaturated/darkened for generic reflections. CAD and elevation pixels are never generatively edited."
+  "processing": "Downloaded photographic assets verified against provider MD5 hashes; lit textures use normal-map directional lighting and ambient occlusion. Sky photograph cropped and desaturated/darkened for generic reflections. CAD and elevation pixels are never generatively edited.",
+  "additional_library": "library/manifest.json",
+  "additional_library_notes": "Ten additional CC0 photographic surfaces. Provider MD5 checks verified before resizing to 1k JPEGs. Colour variants reuse base photographs. RAL values are indicative screen approximations."
 }

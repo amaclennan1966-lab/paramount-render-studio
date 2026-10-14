@@ -1,4 +1,6 @@
+import {LIBRARY_FINISHES} from './material-library.js';
 export const FINISHES={
+ ...LIBRARY_FINISHES,
  stone:{label:'Coursed stone',file:'stone.jpg',normal:'stone-normal.jpg',tile:2500,tint:[1.6,1.55,1.45],rough:.82},
  brick:{label:'Red brick',file:'brick.jpg',normal:'brick-normal.jpg',tile:1440,tint:[1,1,1],rough:.78},
  buff:{label:'Buff brick',file:'brick.jpg',normal:'brick-normal.jpg',tile:1440,tint:[1.24,1.55,1.85],rough:.78},
@@ -7,6 +9,8 @@ export const FINISHES={
  white:{label:'White frames',color:'#f1eee5',rough:.23},olive:{label:'Olive grey',color:'#777e6d',rough:.23},ral7032:{label:'RAL 7032',color:'#b8b59e',rough:.28},
  anthracite:{label:'Anthracite',color:'#383e42',rough:.22},gutter:{label:'Black gutters',color:'#252927',rough:.25},wall:{label:'Cut-wall shading',color:'#bdbfb7',rough:.95},grass:{label:'Grass',file:'grass.jpg',tile:2500,tint:[1,1,1],rough:.9}
 };
+for(const[key,category]of Object.entries({stone:'Stone',brick:'Brick',buff:'Brick',slate:'Roofing',glass:'Glass',white:'Frames & metal',olive:'Frames & metal',ral7032:'Frames & metal',anthracite:'Frames & metal',gutter:'Frames & metal',wall:'Drawing',grass:'Ground'}))FINISHES[key].category=category;
+FINISHES.buff.variant=true;
 const cache=new Map();export function loadImage(url){if(!cache.has(url))cache.set(url,new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(Error('Cannot load material: '+url));i.src=url;}));return cache.get(url);}
 export function polygonPath(ctx,f,scale){ctx.beginPath();for(const ring of[f.ring,...f.holes]){ctx.moveTo(ring[0][0]*scale,ring[0][1]*scale);for(const p of ring.slice(1))ctx.lineTo(p[0]*scale,p[1]*scale);ctx.closePath();}}
 const V=`#version 300 es
