@@ -50,7 +50,7 @@ with sync_playwright() as p:
  page.locator('#apply-selection').click()
  page.wait_for_function('ParamountApp.getState().manualFaces.length===1')
  assert page.evaluate('ParamountApp.getState().manualFaces[0].holes.length')==1
- page.locator('#reflection').fill('0.7')
+ page.evaluate('document.querySelector("#reflection").value="0.7"')
  page.locator('#reflection').dispatch_event('input')
  with page.expect_download(timeout=180000) as saved:
   page.locator('#save-project').click()
