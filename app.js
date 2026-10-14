@@ -1,5 +1,6 @@
 import {snapPoint,validateRing,boundaryReview,validateHole} from './selection.js';
 import {FINISHES,MaterialRenderer,loadImage,drawContext}from './renderer.js';
+import {CATEGORIES,groupForFinish,catalogFromAPI,resolvePolyHavenMaterial,validateLibraryFinishes} from './material-library.js';
 import {pathString,sourceSegmentsRetained,area}from './geometry.js';
 import {pdfPage,paintPage}from './pdf-input.js';
 import {PDFDocument,PDFArray,PDFRawStream,PDFName,PDFDict,PDFString,PDFOperator}from 'pdf-lib';
@@ -15,10 +16,11 @@ function fit(){if(!state)return;zoom=Math.min(($('viewport').clientWidth-60)/sta
 function sizeSheet(){if(!state)return;$('sheet').style.width=state.width*zoom+'px';$('sheet').style.height=state.height*zoom+'px';}
 async function draw(dpi=120){if(!state)return;await renderer.draw(state.faces,state.assignments,state.width,state.height,state.scale,dpi,Number($('sun').value),Number($('relief').value),null,renderOptions());const f=$('finishes');contexts.width=f.width;contexts.height=f.height;await drawContext(contexts.getContext('2d'),state.context,f.width/state.width);$('selection-count').textContent=Object.keys(state.assignments).length+' finishes selected';}
 function refresh(){renderPending=renderPending.catch(()=>{}).then(()=>draw()).catch(fail);return renderPending;}
-function remember(){history.push(JSON.stringify({assignments:state.assignments,context:state.context,manualFaces:state.manualFaces,customFinishes:state.customFinishes}));if(history.length>15)history.shift();}
+function remember(){history.push(JSON.stringify({assignments:state.assignments,context:state.context,manualFaces:state.manualFaces,customFinishes:state.customFinishes,libraryFinishes:state.libraryFinishes}));if(history.length>15)history.shift();}
 let selection=null,draft=[],drawingHole=false;
-const finishes=()=>({...FINISHES,...state?.customFinishes});
-const renderOptions=()=>({customFinishes:state.customFinishes,reflection:Number($('reflection').value)});
+const libraryFinishes=()=>state?.libraryFinishes||{};
+const finishes=()=>({...FINISHES,...libraryFinishes(),...state?.customFinishes});
+const renderOptions=()=>({customFinishes:state.customFinishes,libraryFinishes:state.libraryFinishes,reflection:Number($('reflection').value)});
 function cancelSelection(){selection=null;draft=[];drawingHole=false;$('selection-controls').hidden=true;$('manual-review').checked=false;setupRegions();}
 function showSelection(){
  $('selection-controls').hidden=!selection&&!draft.length;
@@ -75,11 +77,67 @@ function setupRegions(){
  if(draft.length){const p=document.createElementNS(svg.namespaceURI,'polyline');p.setAttribute('points',draft.map(p=>p.join(',')).join(' '));p.classList.add('lasso-draft');svg.append(p);for(const point of draft){const c=document.createElementNS(svg.namespaceURI,'circle');c.setAttribute('cx',point[0]);c.setAttribute('cy',point[1]);c.setAttribute('r',3/zoom);c.classList.add('lasso-corner');svg.append(c);}}
  svg.onclick=e=>{const r=svg.getBoundingClientRect(),point=[(e.clientX-r.left)/r.width*state.width,(e.clientY-r.top)/r.height*state.height];if(mode==='lasso'){draft.push(snapPoint(point,state.segments,10/zoom));showSelection();return;}if(mode==='finish'){status('No closed source area here. Use Polygon lasso to define a reviewed boundary.');return;}const[x,y]=point,h=5000/state.scale*72/25.4;remember();state.context.push({type:mode==='plan'?'plan':'tree',x:x-h*.32,y,w:h*.64,h:mode==='plan'?h*.64:h});mode='finish';refresh();};
 }
-async function open(bytes,name,pageIndex=0,existing=null){busy('Reading original drawing…');if(bytes.byteLength>32*1024*1024)throw Error('Maximum drawing size is 32 MB.');const isDXF=name.toLowerCase().endsWith('.dxf');let imported;try{if(isDXF)imported=await dxf(bytes,Number($('scale').value));else imported=await pdfPage(bytes,pageIndex);}catch(e){if(e.suggestedScale){pendingImport={bytes:bytes.slice(),name};$('export').disabled=true;$('import-error').hidden=false;$('import-error-text').textContent=name+': '+e.message;$('retry-scale').textContent='Retry at 1:'+e.suggestedScale;$('retry-scale').dataset.scale=e.suggestedScale;$('retry-scale').hidden=false;}throw e;}pendingImport=null;lastQA=null;$('export').disabled=false;$('import-error').hidden=true;busy('Finding closed source boundaries…');const boundaries=await faces(imported.segments);state={...imported,manualFaces:[],customFinishes:{},original:bytes.slice(),filename:name,sourceHash:await hash(bytes),type:isDXF?'dxf':'pdf',scale:imported.scale||Number($('scale').value),faces:boundaries,assignments:{},context:[],index:pageIndex};if(existing){state.assignments=existing.assignments;state.context=existing.context;}history=[];$('filename').textContent=name;$('summary').textContent=`${boundaries.length} enclosed areas · ${isDXF?'A3 · model space in mm':'original paper size retained'}`;$('scale').value=state.scale;$('scale-note').textContent=isDXF?'DXF model-space geometry is placed at this scale on A3, without auto-fit.':'Source PDF geometry is unchanged. This scale sizes materials; print at Actual Size.';$('page').replaceChildren();for(let i=0;i<(state.pages||1);i++){const o=document.createElement('option');o.value=i;o.textContent='Sheet '+(i+1);o.selected=i===pageIndex;$('page').append(o);}$('empty').hidden=true;$('sheet').hidden=false;$('controls').hidden=false;
+async function open(bytes,name,pageIndex=0,existing=null){busy('Reading original drawing…');if(bytes.byteLength>32*1024*1024)throw Error('Maximum drawing size is 32 MB.');const isDXF=name.toLowerCase().endsWith('.dxf');let imported;try{if(isDXF)imported=await dxf(bytes,Number($('scale').value));else imported=await pdfPage(bytes,pageIndex);}catch(e){if(e.suggestedScale){pendingImport={bytes:bytes.slice(),name};$('export').disabled=true;$('import-error').hidden=false;$('import-error-text').textContent=name+': '+e.message;$('retry-scale').textContent='Retry at 1:'+e.suggestedScale;$('retry-scale').dataset.scale=e.suggestedScale;$('retry-scale').hidden=false;}throw e;}pendingImport=null;lastQA=null;$('export').disabled=false;$('import-error').hidden=true;busy('Finding closed source boundaries…');const boundaries=await faces(imported.segments);state={...imported,manualFaces:[],customFinishes:{},libraryFinishes:{},original:bytes.slice(),filename:name,sourceHash:await hash(bytes),type:isDXF?'dxf':'pdf',scale:imported.scale||Number($('scale').value),faces:boundaries,assignments:{},context:[],index:pageIndex};if(existing){state.assignments=existing.assignments;state.context=existing.context;}history=[];$('filename').textContent=name;$('summary').textContent=`${boundaries.length} enclosed areas · ${isDXF?'A3 · model space in mm':'original paper size retained'}`;$('scale').value=state.scale;$('scale-note').textContent=isDXF?'DXF model-space geometry is placed at this scale on A3, without auto-fit.':'Source PDF geometry is unchanged. This scale sizes materials; print at Actual Size.';$('page').replaceChildren();for(let i=0;i<(state.pages||1);i++){const o=document.createElement('option');o.value=i;o.textContent='Sheet '+(i+1);o.selected=i===pageIndex;$('page').append(o);}$('empty').hidden=true;$('sheet').hidden=false;$('controls').hidden=false;
  if(isDXF){const image=new Image();const url=URL.createObjectURL(new Blob([state.svg],{type:'image/svg+xml'}));await new Promise((res,rej)=>{image.onload=res;image.onerror=()=>rej(Error('DXF preview could not be displayed.'));image.src=url;});const c=$('linework');c.width=Math.ceil(state.width*1.7);c.height=Math.ceil(state.height*1.7);c.getContext('2d').drawImage(image,0,0,c.width,c.height);URL.revokeObjectURL(url);}else await paintPage(state,$('linework'));
  selection=null;draft=[];drawingHole=false;mode='finish';$('selection-controls').hidden=true;renderPalette();setupRegions();await refresh();fit();$('notes').textContent=(state.notes||'No readable finish notes.')+'\n\nREVIEW: Materials need your explicit boundary selection. Curved/open regions are not automatically filled. Generic textures and screen colours are indicative. '+(state.qa?.limitations||[]).join(' ');status('Ready. Wand previews an area; choose a finish, then Apply selected finish.');idle();window.renderStudioState=state;}
-function renderPalette(){if(!finishes()[kind])kind='stone';$('palette').replaceChildren();for(const[k,v]of Object.entries(finishes())){const b=document.createElement('button');b.className='finish'+(k===kind?' active':'');const sw=document.createElement('span');sw.className='swatch';if(v.data)sw.style.backgroundImage=`url('${v.data}')`;else if(v.file)sw.style.backgroundImage=`url('./public/assets/${v.file}')`;else sw.style.backgroundColor=v.color;b.append(sw,document.createTextNode(v.label));b.onclick=()=>{kind=k;if(mode!=='lasso')mode='finish';document.querySelectorAll('.finish').forEach(x=>x.classList.remove('active'));b.classList.add('active');status('Click an enclosed area to apply '+v.label);};$('palette').append(b);}
+function renderPalette(){
+ if(!finishes()[kind])kind='stone';
+ const selected=$('material-category').value||'All',query=$('material-search').value.trim().toLowerCase();
+ $('palette').replaceChildren();
+ for(const[k,v]of Object.entries(finishes())){
+  const category=groupForFinish(k,v);
+  if(selected!=='All'&&selected!==category)continue;
+  if(query&&!(v.label+' '+category).toLowerCase().includes(query))continue;
+  const b=document.createElement('button');b.className='finish'+(k===kind?' active':'');
+  const sw=document.createElement('span');sw.className='swatch';
+  if(v.data)sw.style.backgroundImage='url("'+v.data+'")';
+  else if(v.url)sw.style.backgroundImage='url("'+v.url+'")';
+  else if(v.file)sw.style.backgroundImage='url("./public/assets/'+v.file+'")';
+  else sw.style.backgroundColor=v.color;
+  b.append(sw,document.createTextNode(v.label));b.title=category;
+  b.onclick=()=>{kind=k;if(mode!=='lasso')mode='finish';renderPalette();status('Select an area, then Apply selected finish: '+v.label);};
+  $('palette').append(b);
+ }
 }
+for(const group of CATEGORIES){$('material-category').add(new Option(group,group));$('online-category').add(new Option(group,group));}
+$('material-search').oninput=$('material-category').onchange=renderPalette;
+let onlineCatalogue=[],onlineVisible=36,onlineLoading=false;
+function showOnline(){
+ const query=$('online-search').value.trim().toLowerCase(),category=$('online-category').value;
+ const matches=onlineCatalogue.filter(x=>(category==='All'||x.category===category)&&(!query||x.search.includes(query)));
+ $('online-materials').replaceChildren();
+ for(const entry of matches.slice(0,onlineVisible)){
+  const b=document.createElement('button');b.type='button';b.className='online-finish';
+  const img=document.createElement('img');img.src=entry.thumbnail;img.loading='lazy';img.alt='';
+  const title=document.createElement('span');title.textContent=entry.name;
+  const label=document.createElement('small');label.textContent=entry.category;
+  b.append(img,title,label);
+  b.onclick=async()=>{if(onlineLoading||!state)return;onlineLoading=true;b.disabled=true;
+   try{const id='ph_'+entry.id;let f=state.libraryFinishes[id];
+    if(!f){f=await resolvePolyHavenMaterial(entry);const test=await Promise.all([loadImage(f.url),...(f.normalUrl?[loadImage(f.normalUrl)]:[])]);if(!test[0].naturalWidth)throw Error('Photographic texture unavailable.');
+     remember();state.libraryFinishes[id]=f;}
+    kind=id;$('material-category').value='All';$('material-search').value='';renderPalette();
+    $('library-status').textContent='Added '+f.label+'. Preview an area and apply the selected finish.';
+   }catch(e){fail(e);$('library-status').textContent='Could not download this finish: '+e.message;}
+   finally{onlineLoading=false;b.disabled=false;}
+  };
+  $('online-materials').append(b);
+ }
+ $('more-materials').hidden=matches.length<=onlineVisible;
+ $('library-status').textContent=onlineCatalogue.length+' free photographic finishes. Displaying '+Math.min(matches.length,onlineVisible)+' of '+matches.length+' matching finishes.';
+}
+$('load-library').onclick=async()=>{
+ $('load-library').disabled=true;$('library-status').textContent='Loading free photographic materials…';
+ try{const response=await fetch('https://api.polyhaven.com/assets?type=textures',{mode:'cors'});
+  if(!response.ok)throw Error('Catalog service unavailable.');
+  onlineCatalogue=catalogFromAPI(await response.json());showOnline();
+ }catch(e){$('library-status').textContent='Online catalogue unavailable. Your installed materials still work.';}
+ finally{$('load-library').disabled=false;}
+};
+$('online-search').oninput=()=>{onlineVisible=36;showOnline();};
+$('online-category').onchange=()=>{onlineVisible=36;showOnline();};
+$('more-materials').onclick=()=>{onlineVisible+=36;showOnline();};
+
 renderPalette();
 $('drawing').onchange=async()=>{try{const f=$('drawing').files[0];if(f)await open(new Uint8Array(await f.arrayBuffer()),f.name);}catch(e){fail(e);}};
 $('demo').onclick=async()=>{try{await open(new Uint8Array(await(await fetch('./demo.pdf')).arrayBuffer()),'Sample-elevation.pdf');}catch(e){fail(e);}};
@@ -87,7 +145,7 @@ $('page').onchange=async()=>{try{await open(state.original,state.filename,Number
 $('retry-scale').onclick=async()=>{if(!pendingImport)return;const scale=Number($('retry-scale').dataset.scale);if(![...$('scale').options].some(o=>Number(o.value)===scale)){$('scale').add(new Option('1:'+scale,String(scale)));}$('scale').value=scale;try{await open(pendingImport.bytes,pendingImport.name);}catch(e){fail(e);}};
 $('scale').onchange=async()=>{if(!state&&!pendingImport)return;try{if(pendingImport){await open(pendingImport.bytes,pendingImport.name);return;}if(state.type==='dxf')await open(state.original,state.filename);else{state.scale=Number($('scale').value);await refresh();}}catch(e){fail(e);}};
 $('erase').onclick=()=>{mode='finish';kind='erase';status('Click an area to clear its finish.');};$('undo').onclick=()=>{if(!state||!history.length)return;Object.assign(state,JSON.parse(history.pop()));state.faces=[...state.faces.filter(f=>!f.review),...state.manualFaces];cancelSelection();renderPalette();refresh();};$('reflection').oninput=$('sun').oninput=$('relief').oninput=()=>refresh();$('tree').onclick=()=>{mode='tree';status('Click at ground level to place a background tree.');};$('plan-tree').onclick=()=>{mode='plan';status('Click to place an illustrative plan-view tree.');};$('zoom-in').onclick=()=>{zoom*=1.25;sizeSheet();};$('zoom-out').onclick=()=>{zoom/=1.25;sizeSheet();};$('fit').onclick=fit;window.onresize=fit;
-$('save-project').onclick=()=>{if(state)download(JSON.stringify({version:2,source_sha256:state.sourceHash,page:state.index,scale:state.scale,assignments:state.assignments,context:state.context,manualFaces:state.manualFaces,customFinishes:state.customFinishes,reflection:Number($('reflection').value)},null,2),'paramount-finish-choices.json','application/json');};
+$('save-project').onclick=()=>{if(state)download(JSON.stringify({version:2,source_sha256:state.sourceHash,page:state.index,scale:state.scale,assignments:state.assignments,context:state.context,manualFaces:state.manualFaces,customFinishes:{...state.libraryFinishes,...state.customFinishes},reflection:Number($('reflection').value)},null,2),'paramount-finish-choices.json','application/json');};
 async function restoreProject(p){
  if(!state||p.source_sha256!==state.sourceHash||p.page!==state.index||p.scale!==state.scale)throw Error('Open the matching drawing, page and scale before restoring choices.');
  const custom=p.customFinishes||{},manual=p.manualFaces||[];if(Object.keys(custom).length>12||manual.length>200)throw Error('Too many saved materials or masks.');
@@ -98,10 +156,11 @@ async function restoreProject(p){
  if(JSON.stringify(materials).length>20000000)throw Error('Saved photos exceed the 20 MB project limit.');
  const base=state.faces.filter(f=>!f.review),ids=new Set(base.map(f=>f.id)),masks=[];
  for(const f of manual){if(!Number.isInteger(f.id)||ids.has(f.id)||!Array.isArray(f.holes))throw Error('Invalid saved mask.');const ring=validateRing(f.ring,state.width,state.height),mask={id:f.id,ring,holes:[],area:Math.abs(area(ring))};for(const h of f.holes){const hole=validateRing(h,state.width,state.height);validateHole(hole,mask);mask.holes.push(hole);}const review=boundaryReview(mask,state.segments);if(!review.cad_verified&&!f.review?.manual_review_confirmed)throw Error('Saved manual boundary needs review.');mask.review={...review,manual_review_confirmed:!review.cad_verified};ids.add(f.id);masks.push(mask);}
- const available={...FINISHES,...materials};for(const[id,k]of Object.entries(p.assignments||{}))if(!ids.has(Number(id))||!available[k])throw Error('Invalid finish choices.');
+ const library=validateLibraryFinishes(p.libraryFinishes||{});
+ const available={...FINISHES,...library,...materials};for(const[id,k]of Object.entries(p.assignments||{}))if(!ids.has(Number(id))||!available[k])throw Error('Invalid finish choices.');
  if(!Array.isArray(p.context)||p.context.some(x=>!['tree','plan'].includes(x.type)||[x.x,x.y,x.w,x.h].some(v=>!Number.isFinite(v))||x.w<=0||x.h<=0||x.w>state.width*2||x.h>state.height*2))throw Error('Invalid context placement.');
  if(p.reflection!==undefined&&(!Number.isFinite(p.reflection)||p.reflection<0||p.reflection>1))throw Error('Invalid reflection strength.');
- remember();state.faces=[...base,...masks];state.manualFaces=masks;state.customFinishes=materials;state.assignments={...p.assignments};state.context=p.context;lastQA=null;if(p.reflection!==undefined)$('reflection').value=p.reflection;cancelSelection();renderPalette();await refresh();status('Saved masks, photos and finish choices restored.');
+ remember();state.faces=[...base,...masks];state.manualFaces=masks;state.customFinishes=materials;state.libraryFinishes=library;state.assignments={...p.assignments};state.context=p.context;lastQA=null;if(p.reflection!==undefined)$('reflection').value=p.reflection;cancelSelection();renderPalette();await refresh();status('Saved masks, photos and finish choices restored.');
 }
 
 $('restore').onchange=async()=>{try{const file=$('restore').files[0];if(!file)return;if(file.size>25000000)throw Error('Saved project exceeds 25 MB.');await restoreProject(JSON.parse(await file.text()));}catch(e){fail(e);}finally{$('restore').value='';}};
@@ -116,7 +175,7 @@ async function exportPDF(){if(!state)throw Error('Open a drawing first.');await 
  busy('Checking original geometry and annotations…');const out=await pdf.save(),finished=await PDFDocument.load(out),outputPage=finished.getPage(state.type==='pdf'?state.index:0),afterHashes=await rawStreams(finished,outputPage),after=await pdfPage(out,state.type==='pdf'?state.index:0);
  const coordinateError=reference.segments.length===after.segments.length?Math.max(0,...reference.segments.flatMap((s,i)=>s.flatMap((p,j)=>p.map((n,k)=>Math.abs(n-after.segments[i][j][k]))))):Infinity;
  const checks={dxf_model_segments_at_declared_scale:state.type!=='dxf'||sourceSegmentsRetained(state.segments,reference.segments),source_bytes_unchanged:(await hash(state.original))===state.sourceHash,original_content_streams_retained:initialHashes.every(h=>afterHashes.includes(h)),original_vector_coordinates_unchanged:coordinateError<=1e-7,original_annotations_unchanged:reference.notes===after.notes,paper_size_unchanged:Math.abs(after.width-reference.width)<.001&&Math.abs(after.height-reference.height)<.001};
- lastQA={application:'Paramount Render Studio',status:Object.values(checks).every(Boolean)?'REVIEW_REQUIRED':'FAIL',checks,source_sha256:state.sourceHash,source_type:state.type,selected_sheet:state.index+1,paper_size_pt:[size.width,size.height],material_scale:'1:'+state.scale,geometry_scale:state.type==='dxf'?'1:'+state.scale:'Unchanged from source PDF',finish_resolution_dpi:rendered?.dpi||0,original_vector_segments_checked:reference.segments.length,maximum_pdf_coordinate_readback_error_pt:coordinateError,coordinate_readback_tolerance_pt:1e-7,material_boundaries:'Automatic areas use finite source linework. Lasso masks are separate rendering boundaries; unmatched edges require explicit manual review.',reviewed_rendering_masks:state.manualFaces.map(f=>({id:f.id,...f.review,ring:f.ring,holes:f.holes})),photo_materials:Object.entries(state.customFinishes).map(([id,f])=>({id,label:f.label,repeat_mm:f.tile,reflection:f.mode===2,colour:f.color||null})),glass_reflection_strength:Number($('reflection').value),selected_finishes:snapshot.assignments,illustrative_context:snapshot.context,dxf_import:state.qa||null,limitations:['This is a photographic material renderer with normal-map lighting, not a surveyed 3D or ray-traced building reconstruction.','Generic materials, colour approximations and planting need project review.','For a PDF input, original model-space coordinates cannot be verified without the CAD file.','Only the selected sheet receives finishes; other PDF sheets are preserved.','DXF imports use model space on a new A3 sheet. Existing DXF paperspace title blocks are not imported.']};
+ lastQA={application:'Paramount Render Studio',status:Object.values(checks).every(Boolean)?'REVIEW_REQUIRED':'FAIL',checks,source_sha256:state.sourceHash,source_type:state.type,selected_sheet:state.index+1,paper_size_pt:[size.width,size.height],material_scale:'1:'+state.scale,geometry_scale:state.type==='dxf'?'1:'+state.scale:'Unchanged from source PDF',finish_resolution_dpi:rendered?.dpi||0,original_vector_segments_checked:reference.segments.length,maximum_pdf_coordinate_readback_error_pt:coordinateError,coordinate_readback_tolerance_pt:1e-7,material_boundaries:'Automatic areas use finite source linework. Lasso masks are separate rendering boundaries; unmatched edges require explicit manual review.',reviewed_rendering_masks:state.manualFaces.map(f=>({id:f.id,...f.review,ring:f.ring,holes:f.holes})),photographic_library_materials:Object.entries(state.libraryFinishes).map(([id,f])=>({id,label:f.label,source:'Poly Haven CC0',repeat_mm:f.tile})),photo_materials:Object.entries(state.customFinishes).map(([id,f])=>({id,label:f.label,repeat_mm:f.tile,reflection:f.mode===2,colour:f.color||null})),glass_reflection_strength:Number($('reflection').value),selected_finishes:snapshot.assignments,illustrative_context:snapshot.context,dxf_import:state.qa||null,limitations:['This is a photographic material renderer with normal-map lighting, not a surveyed 3D or ray-traced building reconstruction.','Generic materials, colour approximations and planting need project review.','For a PDF input, original model-space coordinates cannot be verified without the CAD file.','Only the selected sheet receives finishes; other PDF sheets are preserved.','DXF imports use model space on a new A3 sheet. Existing DXF paperspace title blocks are not imported.']};
  window.lastRenderQA=lastQA; if(!Object.values(checks).every(Boolean)){console.error(JSON.stringify({checks,referenceSegments:reference.segments.length,outputSegments:after.segments.length,firstDifference:reference.segments.findIndex((s,i)=>JSON.stringify(s)!==JSON.stringify(after.segments[i])),expectedFirst:state.segments[0],referenceFirst:reference.segments[0],outputFirst:after.segments[0],coordinateError}));throw Error('Export did not pass geometry checks. QA is available; PDF was not downloaded.');}download(out,state.filename.replace(/\.(pdf|dxf)$/i,'')+'-rendered.pdf','application/pdf');await refresh();idle();status('PDF exported. Original vector geometry and text checks passed. QA report is available.');window.lastRenderQA=lastQA;return {out,qa:lastQA};}
 $('export').onclick=()=>exportPDF().catch(fail);$('qa').onclick=()=>{if(lastQA)download(JSON.stringify(lastQA,null,2),'paramount-render-qa.json','application/json');else status('Export a PDF first to generate the QA report.');};
 window.ParamountApp={open,exportPDF,restoreProject,getState:()=>state,assign:async(id,finish)=>{if(!finishes()[finish]||!state.faces.some(f=>f.id===id))throw Error('Invalid finish assignment');state.assignments[id]=finish;await refresh();}};
