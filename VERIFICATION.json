@@ -1,12 +1,14 @@
 {
-  "status": "PROTOTYPE_AWAITING_BROWSER_CI",
+  "status": "BROWSER_VERIFIED_AWAITING_PAGES_ENABLEMENT",
   "checks": {
     "javascript_syntax": "PASS",
-    "source_boundary_tests": "5 PASS",
+    "source_boundary_tests": "6 PASS",
     "python_dxf_import_tests": "2 PASS",
-    "browser_pdf_export": "NOT_COMPLETED",
-    "github_publication": "SOURCE_UPLOAD_IN_PROGRESS"
+    "browser_pdf_export": "PASS",
+    "browser_dxf_export_1_to_50": "PASS",
+    "github_publication": "SOURCE_UPLOADED"
   },
-  "deployment_blocker": "Browser export must pass GitHub Actions; Pages may need enabling in repository Settings.",
-  "privacy": "No customer drawings included in this package."
+  "verification_run": "https://github.com/amaclennan1966-lab/paramount-render-studio/actions/runs/38584252827",
+  "deployment_blocker": "Enable Settings > Pages > Source > GitHub Actions, then re-run failed workflow jobs.",
+  "privacy": "No customer drawings included."
 }
