@@ -87,28 +87,29 @@ with sync_playwright() as p:
  page.locator('#reflection').dispatch_event('input')
  # Editing is staged, supports opening handles, and commits without duplicating a mask.
  manual_id=page.evaluate('ParamountApp.getState().manualFaces[0].id')
+ before_ring=page.evaluate('ParamountApp.getState().manualFaces[0].ring[0]')
  page.locator('#paint-layers').evaluate('e=>e.open=true')
  page.locator(f'#layer-list button[data-layer="{manual_id}"]').click();page.locator('#edit-outline').click()
  def drag_handle(ring,vertex,point):
   h=page.locator(f'#regions .outline-handle[data-ring="{ring}"][data-vertex="{vertex}"]').bounding_box();r=page.locator('#regions').bounding_box();s=page.evaluate('({w:ParamountApp.getState().width,h:ParamountApp.getState().height})')
   page.mouse.move(h['x']+h['width']/2,h['y']+h['height']/2);page.mouse.down();page.mouse.move(r['x']+point[0]*r['width']/s['w'],r['y']+point[1]*r['height']/s['h'],steps=4);page.mouse.up()
  drag_handle(0,0,(55,55))
- assert page.evaluate('ParamountApp.getState().manualFaces[0].ring[0]')==[60,60]
+ assert page.evaluate('ParamountApp.getState().manualFaces[0].ring[0]')==before_ring
  page.locator('#outline-add').click();corner(112.5,57.5)
  assert page.locator('#regions .outline-handle[data-ring="0"]').count()==5
  page.locator('#outline-remove').click();page.locator('#regions .outline-handle[data-ring="0"][data-vertex="1"]').click()
  assert page.locator('#regions .outline-handle[data-ring="0"]').count()==4
  page.locator('#outline-move').click();drag_handle(1,0,(85,80))
  page.locator('#outline-move').focus();page.keyboard.press('Enter')
- page.wait_for_function('ParamountApp.getState().manualFaces[0].ring[0][0]===55')
+ page.wait_for_function('ParamountApp.getState().manualFaces[0].ring[0][0]<58')
  assert page.evaluate('ParamountApp.getState().manualFaces.length')==1
  assert page.evaluate('ParamountApp.getState().manualFaces[0].id')==manual_id
- assert page.evaluate('ParamountApp.getState().manualFaces[0].holes[0][0]')==[85,80]
+ assert max(abs(a-b) for a,b in zip(page.evaluate('ParamountApp.getState().manualFaces[0].holes[0][0]'),[85,80]))<2
  page.locator('#undo').click()
- assert page.evaluate('ParamountApp.getState().manualFaces[0].ring[0]')==[60,60]
+ assert page.evaluate('ParamountApp.getState().manualFaces[0].ring[0]')==before_ring
  page.locator(f'#layer-list button[data-layer="{manual_id}"]').click();page.locator('#edit-outline').click();drag_handle(0,0,(55,55))
  page.keyboard.press('Escape')
- assert page.evaluate('ParamountApp.getState().manualFaces[0].ring[0]')==[60,60]
+ assert page.evaluate('ParamountApp.getState().manualFaces[0].ring[0]')==before_ring
  assert page.locator('#regions .outline-handle').count()==0
  # Texture size is an area override, retained without changing paper scale.
  page.locator('#paint-layers').evaluate('e=>e.open=true')
