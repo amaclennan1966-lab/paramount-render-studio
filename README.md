@@ -87,3 +87,24 @@ in `public/assets/LICENSES.json`. The bundled pure-Python ezdxf files are MIT
 licensed. PDF.js is Apache 2.0; pdf-lib, jsPDF, svg2pdf.js and Pyodide have their
 respective upstream licences. Include third-party notices when redistributing.
 The sample drawing is synthetic; no customer drawing is included.
+
+## Selection and sampled materials
+
+Wand previews a closed source region; choose a finish and Apply selected finish.
+Polygon lasso snaps within 10 screen pixels to source endpoints or finite edges.
+Close outline creates a preview; Cut opening draws an exclusion inside it.
+Edges that do not coincide with source linework require a checked manual review.
+These are separate presentation masks, recorded in QA with their unmatched edges;
+original CAD geometry and PDF streams remain unchanged. Self-intersecting outlines
+and overlapping/outside exclusions are rejected. Escape cancels; Enter closes.
+
+Sample a photo opens a local crop editor. Drag a material rectangle, or click a
+pixel for sampled colour. Choose repeating texture or glass reflection, name it
+and set its physical repeat width. Photo crops are saved in finish-choice JSON;
+keep those project files private if the photos are private. Photo textures are
+not automatically seamless, perspective-corrected or supplied with normal maps.
+Glass reflection strength mixes a continuous image across panes using the same
+finish with interior shading. Reflections are illustrative, not a 3D simulation.
+
+Save finish choices includes reviewed masks, photo crops and reflection strength.
+Restore rechecks mask validity against the matching source sheet and scale.
