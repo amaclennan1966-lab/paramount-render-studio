@@ -2,15 +2,20 @@
   "status": "PUBLISHED_GITHUB_PAGES",
   "checks": {
     "javascript_syntax": "PASS",
-    "source_boundary_tests": "6 PASS",
+    "source_boundary_tests": "9 PASS",
     "python_dxf_import_tests": "2 PASS",
     "browser_pdf_export": "PASS",
     "browser_dxf_export_1_to_50": "PASS",
-    "github_publication": "PASS"
+    "github_publication": "PASS",
+    "wand_preview": "PASS",
+    "lasso_opening_exclusions_and_manual_review": "PASS",
+    "local_photo_crop_glass_and_project_restore": "PASS",
+    "native_vector_pdf_export_with_reviewed_masks": "PASS"
   },
-  "verification_run": "https://github.com/amaclennan1966-lab/paramount-render-studio/actions/runs/38584252827",
+  "verification_run": "https://github.com/amaclennan1966-lab/paramount-render-studio/actions/runs/38591943918",
   "privacy": "No customer drawings included.",
   "deployment_url": "https://amaclennan1966-lab.github.io/paramount-render-studio/",
-  "deployment_run": "https://github.com/amaclennan1966-lab/paramount-render-studio/actions/runs/38584563251",
-  "verification_scope": "PDF and DXF browser import/export tested in GitHub Actions. Production Pages deployment succeeded; a separate live browser navigation was unavailable."
+  "deployment_run": "https://github.com/amaclennan1966-lab/paramount-render-studio/actions/runs/38591943918",
+  "verification_scope": "PDF and DXF browser import/export tested in GitHub Actions. Production Pages deployment succeeded; a separate live browser navigation was unavailable.",
+  "manual_boundary_policy": "CAD-matching lasso edges are verified against finite source segments. Unmatched edges require explicit manual review and are recorded separately from source geometry in QA."
 }
