@@ -1,0 +1,5 @@
+{
+  "status": "PROTOTYPE_AWAITING_BROWSER_CI",
+  "checks": {"source_boundary_tests": "5 PASS", "python_dxf_import_tests": "2 PASS", "browser_pdf_export": "NOT_COMPLETED"},
+  "privacy": "No customer drawings included."
+}
