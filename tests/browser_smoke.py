@@ -301,5 +301,29 @@ with sync_playwright() as p:
  deleted_save.value.save_as(ROOT/'browser-smoke-deleted-tree-project.json')
  assert json.loads((ROOT/'browser-smoke-deleted-tree-project.json').read_text())['context']==[]
  assert not errors,errors
+ # Synthetic dense CAD hatchwork: opening and lasso export must retain every
+ # source segment even when automatic detection switches to manual review.
+ dense_path=ROOT/'browser-smoke-dense.pdf';dense=fitz.open();dense_page=dense.new_page(width=1191,height=842);shape=dense_page.new_shape()
+ for i in range(94000):
+  x=50+(i%470)*2;y=300+(i//470)*.5;shape.draw_line((x,y),(x+1,y+.2))
+ shape.finish(color=(0,0,0),width=.1);shape.commit();dense_page.insert_text((50,50),'Synthetic detail 1:100',fontsize=10);dense.save(dense_path);dense.close()
+ page.locator('#drawing').set_input_files(str(dense_path))
+ page.wait_for_function('ParamountApp.getState().filename === "browser-smoke-dense.pdf" && document.querySelector("#busy").hidden',timeout=120000)
+ assert page.evaluate('ParamountApp.getState().segments.length')>=94000
+ assert page.locator('#boundary-warning').is_visible()
+ assert 'Polygon lasso' in page.locator('#boundary-warning').inner_text()
+ assert not page.locator('#export').is_disabled()
+ page.locator('#lasso').click()
+ for point in [(100,100),(200,100),(200,200),(100,200)]:corner(*point)
+ page.locator('#close-lasso').focus();page.keyboard.press('Enter');page.keyboard.press('Enter')
+ page.wait_for_function('ParamountApp.getState().manualFaces.length===1')
+ page.select_option('#dpi','150')
+ with page.expect_download(timeout=180000) as dense_export:dense_qa=page.evaluate('async()=>{return (await ParamountApp.exportPDF()).qa;}')
+ assert all(dense_qa['checks'].values()),dense_qa
+ assert dense_qa['original_vector_segments_checked']>=94000,dense_qa
+ assert dense_qa['boundary_detection_warning'] and dense_qa['object_detection_notes']
+ dense_export.value.save_as(ROOT/'browser-smoke-dense-export.pdf')
+ (ROOT/'browser-smoke-dense-qa.json').write_text(json.dumps(dense_qa,indent=2))
+ assert not errors,errors
  browser.close()
 server.shutdown();print('Real browser import, WebGL material and native-vector PDF export passed.')

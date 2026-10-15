@@ -19,3 +19,5 @@
 #regions .pane-preview{fill:#d9eaf477;stroke:#447b9b;stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}#exclude-internal{width:100%;margin:5px 0}
 
 #delete-tree{width:100%;margin-top:7px}#delete-tree[aria-pressed=true]{background:#8e3b32;color:white}#regions .tree-delete-target{fill:transparent;stroke:#a34232;stroke-width:1.5;stroke-dasharray:5 3;vector-effect:non-scaling-stroke;pointer-events:all;cursor:crosshair}#regions .tree-delete-target:hover{fill:#b9433226;stroke-width:2.5}#regions[data-tool=delete-tree]{cursor:crosshair}
+
+#boundary-warning{padding:12px 20px;background:#fff2dc;color:#765116;font-size:12px;line-height:1.5}#boundary-warning[hidden]{display:none}

@@ -193,3 +193,6 @@ Compact PDF is the default: all finishes are composited once in their visible dr
 
 ### Delete added trees
 Under Context, click **Delete tree**, then click inside a tree's dashed outline. The topmost tree is removed when outlines overlap. This works for elevation and plan trees, including trees restored from saved choices. The tool stays active for further deletions; Escape or Wand exits. Undo restores a deletion. Materials and original PDF/DXF geometry are unchanged. Trees already printed in the original source are not editable context objects. Save finish choices again after deleting.
+
+### Detailed PDF sheets
+Automatic finite-line boundary detection uses a spatial index instead of all-pairs comparisons. Very detailed sheets (over 30,000 extracted straight segments), excessive intersections/regions or detection timeouts open safely in manual lasso mode, with a visible warning and a QA entry. No source vectors are removed or simplified. Automatic object detection is skipped in this mode; manually protect window, door and pipe outlines before applying finishes. Vector PDF QA uses a streaming coordinate comparison to support dense source drawings without JavaScript argument limits.
