@@ -1,0 +1,1 @@
+import {findObjects}from './object-detection.js';self.onmessage=e=>{try{self.postMessage({objects:findObjects(e.data.segments,e.data.faces,e.data.labels,e.data.scale)});}catch(error){self.postMessage({objects:[],error:error.message});}};

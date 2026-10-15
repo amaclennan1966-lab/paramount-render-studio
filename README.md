@@ -166,3 +166,24 @@ pale blue-grey with broad, diffuse white highlights, without photographic cloud
 or tree detail. The finish is a smooth material shader clipped to the selected
 boundary. Older blue/green preset IDs map to it when restoring saved choices.
 User-imported photo reflections remain available as custom materials.
+
+## Window batches and internal object protection
+
+Windows, doors & pipes > Find / review windows previews source-closed nested
+frames and pane outlines. W/D labels help identify candidates; unlabelled frames
+remain unclassified. Tick candidates only after reviewing their frame and pane
+geometry, choose a frame colour, then Render reviewed windows + clear glass.
+This paints each reviewed frame and its source-defined panes in one batch.
+Repeated batches replace their earlier window layers; Undo reverses the batch.
+
+Preserve internal objects is enabled for new lassos. Source-closed frame, door
+and narrow-detail candidates are subtracted as independent exclusions, including
+objects touching the lasso boundary. Exclude internal objects adds this protection
+to an older wall mask before Enter applies it. Unclassified details stay clear
+and are listed in QA. Allow fill overrides a false positive in the object list.
+
+Open, curved, oblique or ambiguous objects are not automatically reconstructed.
+Preview a source area or draw a reviewed outline, choose its object type and use
+Protect selected object to mark a missing window, door or pipe. Photos, masks and
+object decisions stay local and are saved with finish choices. Review detection
+against the drawing: geometric containment does not establish an object's role.

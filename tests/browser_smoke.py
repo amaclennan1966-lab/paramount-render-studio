@@ -216,5 +216,48 @@ with sync_playwright() as p:
  assert page.evaluate('ParamountApp.getState().qa.source_bytes_unchanged')
  assert not page.locator('#export').is_disabled()
  page.screenshot(path=str(ROOT/'browser-smoke-scale-recovery.png'),full_page=True)
+ # Source-defined objects stay out of wall lassos, and reviewed windows batch-render.
+ import fitz
+ fixture=ROOT/'browser-smoke-objects.pdf';document=fitz.open();sheet=document.new_page(width=1191,height=842)
+ sheet.draw_rect(fitz.Rect(300,420,800,600),color=(0,0,0))
+ for x,ref in [(400,'W01'),(550,'W02')]:
+  sheet.draw_rect(fitz.Rect(x,440,x+60,500),color=(0,0,0));sheet.draw_rect(fitz.Rect(x+4,444,x+56,496),color=(0,0,0))
+  for bar in (x+28,x+32):sheet.draw_line((bar,444),(bar,496),color=(0,0,0))
+  sheet.insert_text((x+20,518),ref,fontsize=9)
+ sheet.draw_rect(fitz.Rect(680,510,720,600),color=(0,0,0));sheet.draw_rect(fitz.Rect(684,514,716,596),color=(0,0,0));sheet.insert_text((690,618),'D01',fontsize=9)
+ sheet.draw_rect(fitz.Rect(760,420,763,600),color=(0,0,0));sheet.insert_text((30,800),'Scale 1:100',fontsize=10);document.save(fixture);document.close()
+ page.locator('#drawing').set_input_files(str(fixture));page.wait_for_function('ParamountApp.getState().filename === "browser-smoke-objects.pdf" && document.querySelector("#busy").hidden',timeout=120000)
+ assert page.evaluate('ParamountApp.getState().objects.filter(o=>o.type==="window").length')==2
+ page.select_option('#material-category','Stone');page.locator('#palette button[data-material="stone"]').click();page.locator('#lasso').click()
+ for point in [(300,420),(800,420),(800,600),(300,600)]:corner(*point)
+ page.locator('#close-lasso').focus();page.keyboard.press('Enter');page.keyboard.press('Enter')
+ page.wait_for_function('ParamountApp.getState().manualFaces.length===1')
+ assert page.evaluate('ParamountApp.getState().manualFaces[0].exclusions.length')>=4
+ page.wait_for_timeout(300)
+ assert pixel(430,470)[3]==0,pixel(430,470)
+ assert pixel(700,550)[3]==0,pixel(700,550)
+ assert pixel(761,450)[3]==0,pixel(761,450)
+ assert pixel(350,450)[3]>200,pixel(350,450)
+ page.locator('#objects-panel').evaluate('e=>e.open=true');page.locator('#find-objects').click()
+ page.get_by_role('checkbox',name='Render W01 as window',exact=True).check();page.get_by_role('checkbox',name='Render W02 as window',exact=True).check()
+ page.select_option('#window-colour','anthracite');page.locator('#render-windows').click()
+ page.wait_for_function('ParamountApp.getState().objects.filter(o=>o.renderIds?.length).length===2')
+ page.wait_for_timeout(300)
+ assert pixel(402,442)[0]<100 and pixel(402,442)[3]>200,pixel(402,442)
+ assert pixel(410,470)[0]>190,pixel(410,470)
+ assert pixel(700,550)[3]==0
+ initial_masks=page.evaluate('ParamountApp.getState().manualFaces.length');page.locator('#render-windows').click();page.wait_for_timeout(300)
+ assert page.evaluate('ParamountApp.getState().manualFaces.length')==initial_masks
+ with page.expect_download(timeout=180000) as objects_saved:page.locator('#save-project').click()
+ objects_saved.value.save_as(ROOT/'browser-smoke-objects-project.json')
+ project=json.loads((ROOT/'browser-smoke-objects-project.json').read_text());page.evaluate('async p=>{await ParamountApp.restoreProject(p);}',project)
+ assert page.evaluate('ParamountApp.getState().objects.filter(o=>o.type==="window").length')==2
+ page.select_option('#dpi','150')
+ with page.expect_download(timeout=180000) as objects_export:objects_qa=page.evaluate('async()=>{return (await ParamountApp.exportPDF()).qa;}')
+ assert all(objects_qa['checks'].values()),objects_qa
+ assert len(objects_qa['protected_objects'])>=4
+ objects_export.value.save_as(ROOT/'browser-smoke-objects-export.pdf');(ROOT/'browser-smoke-objects-qa.json').write_text(json.dumps(objects_qa,indent=2))
+ pdf=fitz.open(ROOT/'browser-smoke-objects-export.pdf');raster=pdf[0].get_pixmap();assert raster.pixel(700,550)==(255,255,255),raster.pixel(700,550)
+ page.screenshot(path=str(ROOT/'browser-smoke-objects-preview.png'),full_page=True)
  browser.close()
 server.shutdown();print('Real browser import, WebGL material and native-vector PDF export passed.')
