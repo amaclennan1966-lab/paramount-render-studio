@@ -187,3 +187,6 @@ Preview a source area or draw a reviewed outline, choose its object type and use
 Protect selected object to mark a missing window, door or pipe. Photos, masks and
 object decisions stay local and are saved with finish choices. Review detection
 against the drawing: geometric containment does not establish an object's role.
+
+### Faster PDF export
+Compact PDF is the default: all finishes are composited once in their visible draw order into one lossless transparent image beneath the unchanged source vector linework and annotations. Planting remains a separate layer. This reduces repeated full-sheet images and rendering passes. Use Separate material layers when individually switchable material runs are required; those files are larger. Save finish choices separately to retain editable masks, materials and ordering. Both modes perform the same coordinate, text, source-stream and paper-size QA checks.

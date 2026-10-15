@@ -258,6 +258,22 @@ with sync_playwright() as p:
  assert len(objects_qa['protected_objects'])>=4
  objects_export.value.save_as(ROOT/'browser-smoke-objects-export.pdf');(ROOT/'browser-smoke-objects-qa.json').write_text(json.dumps(objects_qa,indent=2))
  pdf=fitz.open(ROOT/'browser-smoke-objects-export.pdf');raster=pdf[0].get_pixmap();assert raster.pixel(700,550)==(255,255,255),raster.pixel(700,550)
+ assert objects_qa['pdf_export_mode']=='compact' and objects_qa['embedded_finish_images']==1,objects_qa
+ compact_images=pdf[0].get_images();assert len(compact_images)==1,len(compact_images)
+ # Compare layered and compact output on the same reviewed masks, windows and pipes.
+ page.select_option('#pdf-mode','layered')
+ with page.expect_download(timeout=180000) as layered_export:layered_qa=page.evaluate('async()=>{return (await ParamountApp.exportPDF()).qa;}')
+ assert all(layered_qa['checks'].values()),layered_qa
+ layered_export.value.save_as(ROOT/'browser-smoke-layered-export.pdf')
+ layered=fitz.open(ROOT/'browser-smoke-layered-export.pdf');layered_raster=layered[0].get_pixmap()
+ assert layered_qa['embedded_finish_images']>1,layered_qa
+ assert len(layered[0].get_images())>len(compact_images)
+ # Equal ordered appearance (allow minor alpha-compositing rounding differences).
+ from PIL import ImageChops,ImageStat
+ delta=ImageChops.difference(Image.frombytes('RGB',[raster.width,raster.height],raster.samples),Image.frombytes('RGB',[layered_raster.width,layered_raster.height],layered_raster.samples))
+ assert max(ImageStat.Stat(delta).mean)<1,ImageStat.Stat(delta).mean
+ assert (ROOT/'browser-smoke-objects-export.pdf').stat().st_size < (ROOT/'browser-smoke-layered-export.pdf').stat().st_size
+ page.select_option('#pdf-mode','compact')
  page.screenshot(path=str(ROOT/'browser-smoke-objects-preview.png'),full_page=True)
  browser.close()
 server.shutdown();print('Real browser import, WebGL material and native-vector PDF export passed.')
