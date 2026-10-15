@@ -196,3 +196,6 @@ Under Context, click **Delete tree**, then click inside a tree's dashed outline.
 
 ### Detailed PDF sheets
 Automatic finite-line boundary detection uses a spatial index instead of all-pairs comparisons. Very detailed sheets (over 30,000 extracted straight segments), excessive intersections/regions or detection timeouts open safely in manual lasso mode, with a visible warning and a QA entry. No source vectors are removed or simplified. Automatic object detection is skipped in this mode; manually protect window, door and pipe outlines before applying finishes. Vector PDF QA uses a streaming coordinate comparison to support dense source drawings without JavaScript argument limits.
+
+### Drawing readability
+Use **Drawing · 65%**, **Presentation · 100%**, or the **Texture opacity** slider. This lightens photographic surface textures towards white without making upper material masks reveal lower finishes. Solid frame colours, glass, original vectors, annotations and planting remain unchanged. Both PDF export modes use the displayed setting; saved finish choices retain it. Older saved choices restore at 100%.

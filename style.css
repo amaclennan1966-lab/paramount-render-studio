@@ -21,3 +21,5 @@
 #delete-tree{width:100%;margin-top:7px}#delete-tree[aria-pressed=true]{background:#8e3b32;color:white}#regions .tree-delete-target{fill:transparent;stroke:#a34232;stroke-width:1.5;stroke-dasharray:5 3;vector-effect:non-scaling-stroke;pointer-events:all;cursor:crosshair}#regions .tree-delete-target:hover{fill:#b9433226;stroke-width:2.5}#regions[data-tool=delete-tree]{cursor:crosshair}
 
 #boundary-warning{padding:12px 20px;background:#fff2dc;color:#765116;font-size:12px;line-height:1.5}#boundary-warning[hidden]{display:none}
+
+#texture-opacity-value{float:right;font-weight:600;color:#284e3a}#drawing-mode[aria-pressed=true],#presentation-mode[aria-pressed=true]{border-color:#456d4c;background:#e1ebdc}

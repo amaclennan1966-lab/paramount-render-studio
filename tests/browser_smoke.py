@@ -301,6 +301,20 @@ with sync_playwright() as p:
  deleted_save.value.save_as(ROOT/'browser-smoke-deleted-tree-project.json')
  assert json.loads((ROOT/'browser-smoke-deleted-tree-project.json').read_text())['context']==[]
  assert not errors,errors
+ # GPU opacity lightens surface colour while preserving masks, overlap order,
+ # glass and solid frame colours. Low opacity must not reveal lower finishes.
+ page.evaluate('''async()=>{
+  const {MaterialRenderer}=await import('./renderer.js');const c=document.createElement('canvas'),r=new MaterialRenderer(c);
+  const rect=(id,x,y,w,h)=>({id,ring:[[x,y],[x+w,y],[x+w,y+h],[x,y+h],[x,y]],holes:[]});const faces=[rect(0,10,10,70,70),rect(1,30,30,40,40)];
+  const sample=()=>{const p=new Uint8Array(4);r.gl.readPixels(45,55,1,1,r.gl.RGBA,r.gl.UNSIGNED_BYTE,p);return [...p];};
+  const options={paintOrder:[0,1],textureOpacity:100};
+  await r.draw(faces,{0:'stone',1:'brick'},100,100,50,72,-45,.5,null,options);const full=sample();
+  await r.draw(faces,{0:'stone',1:'brick'},100,100,50,72,-45,.5,null,{...options,textureOpacity:65});const faded=sample();
+  if(faded[3]!==full[3]||faded.slice(0,3).some((v,i)=>Math.abs(v-(255*.35+full[i]*.65))>2))throw Error('Texture fade changed coverage or colour incorrectly '+[full,faded]);
+  await r.draw(faces,{0:'stone',1:'brick'},100,100,50,72,-45,.5,null,{...options,textureOpacity:0});if(sample().some(v=>v!==255))throw Error('Faded upper texture revealed lower surface');
+  for(const kind of ['glass','anthracite']){await r.draw([faces[0]],{0:kind},100,100,50,72,-45,.5,null,options);const a=sample();await r.draw([faces[0]],{0:kind},100,100,50,72,-45,.5,null,{...options,textureOpacity:0});if(JSON.stringify(a)!==JSON.stringify(sample()))throw Error(kind+' was faded');}
+  r.gl.getExtension('WEBGL_lose_context')?.loseContext();
+ }''')
  # Synthetic dense CAD hatchwork: opening and lasso export must retain every
  # source segment even when automatic detection switches to manual review.
  dense_path=ROOT/'browser-smoke-dense.pdf';dense=fitz.open();dense_page=dense.new_page(width=1191,height=842);shape=dense_page.new_shape()
@@ -317,9 +331,21 @@ with sync_playwright() as p:
  for point in [(100,100),(200,100),(200,200),(100,200)]:corner(*point)
  page.locator('#close-lasso').focus();page.keyboard.press('Enter');page.keyboard.press('Enter')
  page.wait_for_function('ParamountApp.getState().manualFaces.length===1')
+ page.locator('#drawing-mode').click();page.wait_for_timeout(300)
+ assert page.locator('#texture-opacity').input_value()=='65'
+ assert page.locator('#texture-opacity-value').inner_text()=='65%'
+ with page.expect_download(timeout=180000) as readability_saved:page.locator('#save-project').click()
+ readability_saved.value.save_as(ROOT/'browser-smoke-readability-project.json')
+ readability=json.loads((ROOT/'browser-smoke-readability-project.json').read_text());assert readability['textureOpacity']==65
+ page.locator('#presentation-mode').click();assert page.locator('#texture-opacity').input_value()=='100'
+ page.evaluate('async p=>{await ParamountApp.restoreProject(p);}',readability)
+ assert page.locator('#texture-opacity').input_value()=='65'
+ assert page.locator('#drawing-mode').get_attribute('aria-pressed')=='true'
+ assert page.evaluate("async p=>{try{await ParamountApp.restoreProject({...p,textureOpacity:101});return false;}catch{return true;}}",readability)
  page.select_option('#dpi','150')
  with page.expect_download(timeout=180000) as dense_export:dense_qa=page.evaluate('async()=>{return (await ParamountApp.exportPDF()).qa;}')
  assert all(dense_qa['checks'].values()),dense_qa
+ assert dense_qa['texture_opacity_percent']==65,dense_qa
  assert dense_qa['original_vector_segments_checked']>=94000,dense_qa
  assert dense_qa['boundary_detection_warning'] and dense_qa['object_detection_notes']
  dense_export.value.save_as(ROOT/'browser-smoke-dense-export.pdf')
