@@ -275,5 +275,31 @@ with sync_playwright() as p:
  assert (ROOT/'browser-smoke-objects-export.pdf').stat().st_size < (ROOT/'browser-smoke-layered-export.pdf').stat().st_size
  page.select_option('#pdf-mode','compact')
  page.screenshot(path=str(ROOT/'browser-smoke-objects-preview.png'),full_page=True)
+ # Delete older/restored trees without touching material masks or original geometry.
+ page.locator('#tree').click();corner(500,550)
+ page.wait_for_function('ParamountApp.getState().context.length===1')
+ page.locator('#plan-tree').click();corner(520,550)
+ page.wait_for_function('ParamountApp.getState().context.length===2')
+ planted=page.evaluate('JSON.parse(JSON.stringify(ParamountApp.getState().context))')
+ before_delete=page.evaluate('JSON.stringify({a:ParamountApp.getState().assignments,m:ParamountApp.getState().manualFaces,order:ParamountApp.getState().paintOrder})')
+ # Simulate reopening saved choices containing these existing trees.
+ project['context']=planted;page.evaluate('async p=>{await ParamountApp.restoreProject(p);}',project)
+ page.locator('#delete-tree').click();assert page.locator('.tree-delete-target').count()==2
+ corner(50,50);assert page.evaluate('ParamountApp.getState().context.length')==2
+ corner(510,500);page.wait_for_function('ParamountApp.getState().context.length===1')
+ assert page.evaluate('ParamountApp.getState().context[0].type')=='tree' # Topmost overlapping plan tree removed first.
+ assert page.evaluate('JSON.stringify({a:ParamountApp.getState().assignments,m:ParamountApp.getState().manualFaces,order:ParamountApp.getState().paintOrder})')==before_delete
+ page.locator('#undo').click();page.wait_for_function('ParamountApp.getState().context.length===2')
+ assert page.evaluate('ParamountApp.getState().context')==planted
+ page.locator('#delete-tree').click();page.keyboard.press('Escape');assert page.locator('.tree-delete-target').count()==0
+ page.locator('#delete-tree').click();corner(460,450) # Older elevation tree, outside the plan tree.
+ assert page.evaluate('ParamountApp.getState().context.length')==1
+ assert page.evaluate('ParamountApp.getState().context[0].type')=='plan'
+ corner(510,500);page.wait_for_function('ParamountApp.getState().context.length===0')
+ page.locator('#wand').click();assert page.locator('#delete-tree').get_attribute('aria-pressed')=='false'
+ with page.expect_download(timeout=180000) as deleted_save:page.locator('#save-project').click()
+ deleted_save.value.save_as(ROOT/'browser-smoke-deleted-tree-project.json')
+ assert json.loads((ROOT/'browser-smoke-deleted-tree-project.json').read_text())['context']==[]
+ assert not errors,errors
  browser.close()
 server.shutdown();print('Real browser import, WebGL material and native-vector PDF export passed.')
