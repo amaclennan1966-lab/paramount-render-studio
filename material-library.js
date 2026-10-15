@@ -270,33 +270,5 @@ export const LIBRARY_FINISHES={
     "colourCode": "RAL 6009",
     "rough": 0.25,
     "description": "RAL 6009 screen approximation; check the manufacturer swatch."
-  },
-  "glass_blue": {
-    "label": "Blue-tinted glass",
-    "category": "Glass",
-    "file": "glass.jpg",
-    "tile": 2500,
-    "tint": [
-      0.75,
-      0.9,
-      1.1
-    ],
-    "rough": 0.08,
-    "mode": 2,
-    "variant": true
-  },
-  "glass_green": {
-    "label": "Green-tinted glass",
-    "category": "Glass",
-    "file": "glass.jpg",
-    "tile": 2500,
-    "tint": [
-      0.8,
-      1.1,
-      0.85
-    ],
-    "rough": 0.08,
-    "mode": 2,
-    "variant": true
   }
 };

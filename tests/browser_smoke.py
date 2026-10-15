@@ -46,8 +46,20 @@ with sync_playwright() as p:
  assert page.locator('#palette button').inner_text().startswith('Light grey frames')
  page.locator('#material-search').fill('')
  page.select_option('#material-category','all')
- assert page.locator('#palette button').count()==40
+ assert page.locator('#palette button').count()==38
  page.evaluate('''async()=>{const {FINISHES,MaterialRenderer}=await import('./renderer.js');const s=ParamountApp.getState(),id=s.faces.reduce((a,b)=>a.area>b.area?a:b).id,c=document.createElement('canvas'),r=new MaterialRenderer(c);for(const key of Object.keys(FINISHES).filter(k=>k.startsWith('library_'))){await r.draw(s.faces,{[id]:key},s.width,s.height,s.scale,36);const pixels=new Uint8Array(c.width*c.height*4);r.gl.readPixels(0,0,c.width,c.height,r.gl.RGBA,r.gl.UNSIGNED_BYTE,pixels);if(!pixels.some((v,i)=>i%4===3&&v>0)||r.gl.getError()!==r.gl.NO_ERROR)throw Error('Material render failed '+key);}}''')
+ # New default glass is pale, smooth and the only built-in glass choice.
+ page.select_option('#material-category','Glass')
+ assert page.locator('#palette button').count()==1
+ assert 'Soft pale glass' in page.locator('#palette button').inner_text()
+ import base64
+ swatch=page.evaluate('''async()=>{const {MaterialRenderer}=await import('./renderer.js'),c=document.createElement('canvas'),r=new MaterialRenderer(c),face={id:0,ring:[[0,0],[400,0],[400,360],[0,360],[0,0]],holes:[]};await r.draw([face],{0:'glass'},400,360,50,72);for(const[x,y]of [[20,20],[200,180],[380,340]]){const p=new Uint8Array(4);r.gl.readPixels(x,y,1,1,r.gl.RGBA,r.gl.UNSIGNED_BYTE,p);if(p[0]<190||p[1]<195||p[2]<200||Math.max(...p.slice(0,3))-Math.min(...p.slice(0,3))>35)throw Error('Glass is not pale reference-style '+p);}return c.toDataURL('image/png').split(',')[1];}''')
+ (ROOT/'browser-smoke-soft-glass.png').write_bytes(base64.b64decode(swatch))
+ legacy=page.evaluate('()=>{const s=ParamountApp.getState();return {source_sha256:s.sourceHash,page:s.index,scale:s.scale,assignments:{[s.faces[0].id]:"glass_green"},context:[]};}')
+ page.evaluate('async p=>{await ParamountApp.restoreProject(p);}',legacy)
+ assert page.evaluate('Object.values(ParamountApp.getState().assignments)[0]')=='glass'
+ page.evaluate('async()=>{await ParamountApp.open(new Uint8Array(await(await fetch("./demo.pdf")).arrayBuffer()),"Sample-elevation.pdf");}')
+ page.select_option('#material-category','all')
  # Wand previews without committing a finish.
  wall_id=page.evaluate('ParamountApp.getState().faces.reduce((a,b)=>a.area>b.area?a:b).id')
  page.locator(f'#regions path[data-face="{wall_id}"]').dispatch_event('click')
@@ -121,7 +133,7 @@ with sync_playwright() as p:
  page.locator('#edit-texture').click()
  page.wait_for_function('(ParamountApp.getState().textureScales['+str(wall_id)+']||1)===.5')
  assert page.evaluate('JSON.stringify(ParamountApp.getState().paintOrder)')==before_order
- page.evaluate('''async()=>{const {MaterialRenderer,FINISHES}=await import('./renderer.js'),s=ParamountApp.getState(),c=document.createElement('canvas'),r=new MaterialRenderer(c),id=s.faces.reduce((a,b)=>a.area>b.area?a:b).id;await r.draw(s.faces,{[id]:'brick'},s.width,s.height,100,36,-45,.5,null,{textureScales:{[id]:1}});const a=r.gl.getUniform(r.program,r.gl.getUniformLocation(r.program,'repeats'))[0];await r.draw(s.faces,{[id]:'brick'},s.width,s.height,100,36,-45,.5,null,{textureScales:{[id]:.5}});const b=r.gl.getUniform(r.program,r.gl.getUniformLocation(r.program,'repeats'))[0];if(Math.abs(b/a-2)>.0001)throw Error('Half-size texture did not double repeats');if(FINISHES.glass.tint[1]<=FINISHES.glass.tint[2])throw Error('Default glass is not greener');}''')
+ page.evaluate('''async()=>{const {MaterialRenderer,FINISHES}=await import('./renderer.js'),s=ParamountApp.getState(),c=document.createElement('canvas'),r=new MaterialRenderer(c),id=s.faces.reduce((a,b)=>a.area>b.area?a:b).id;await r.draw(s.faces,{[id]:'brick'},s.width,s.height,100,36,-45,.5,null,{textureScales:{[id]:1}});const a=r.gl.getUniform(r.program,r.gl.getUniformLocation(r.program,'repeats'))[0];await r.draw(s.faces,{[id]:'brick'},s.width,s.height,100,36,-45,.5,null,{textureScales:{[id]:.5}});const b=r.gl.getUniform(r.program,r.gl.getUniformLocation(r.program,'repeats'))[0];if(Math.abs(b/a-2)>.0001)throw Error('Half-size texture did not double repeats');if(FINISHES.glass.mode!==3||FINISHES.glass.file)throw Error('Default glass should use the diffuse reference style');}''')
  # A later overlapping white mask must cover the earlier photo finish.
  page.select_option('#material-category','Frames & metal')
  page.locator('#palette button[data-material="white"]').click()

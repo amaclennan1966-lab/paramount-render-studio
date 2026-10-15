@@ -111,9 +111,8 @@ Restore rechecks mask validity against the matching source sheet and scale.
 
 ## Material library
 
-The expanded built-in library has 40 finishes: ten additional checksum-verified
-CC0 photographic surfaces, labelled colour variants, frame/metal colours, glass
-tints and the original finishes. Search by material name or RAL code, or filter
+The expanded built-in library has 38 finishes: ten additional checksum-verified
+CC0 photographic surfaces, labelled colour variants, frame/metal colours, a single soft pale glass finish and the original finishes. Search by material name or RAL code, or filter
 by category. Finish IDs are stable so older saved projects remain compatible.
 The app bundles textures locally; provider APIs are used only when preparing
 new assets. Additional photo provenance is in public/assets/library/manifest.json.
@@ -159,3 +158,11 @@ previous mask after a committed edit. Source CAD/PDF lines are never dragged.
 Hold Space and drag over the drawing to pan at any zoom. Panning does not paint
 areas, place plants, move mask handles or alter PDF scale. Release Space to resume
 the current tool. Text fields retain their normal Space-key behaviour.
+
+## Reference-style glass
+
+The three old built-in glass choices are replaced by one Soft pale glass finish:
+pale blue-grey with broad, diffuse white highlights, without photographic cloud
+or tree detail. The finish is a smooth material shader clipped to the selected
+boundary. Older blue/green preset IDs map to it when restoring saved choices.
+User-imported photo reflections remain available as custom materials.
