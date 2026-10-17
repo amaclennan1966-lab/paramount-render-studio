@@ -1,4 +1,247 @@
 export const LIBRARY_FINISHES={
+
+  "colour_chalk_white": {
+    "label": "Chalk white",
+    "category": "Solid colours",
+    "color": "#F5F4EF",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #F5F4EF. Screen colour; review against a physical sample."
+  },
+  "colour_warm_white": {
+    "label": "Warm white",
+    "category": "Solid colours",
+    "color": "#F2EBDD",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #F2EBDD. Screen colour; review against a physical sample."
+  },
+  "colour_ivory": {
+    "label": "Ivory",
+    "category": "Solid colours",
+    "color": "#EAE2CB",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #EAE2CB. Screen colour; review against a physical sample."
+  },
+  "colour_cream": {
+    "label": "Cream",
+    "category": "Solid colours",
+    "color": "#E6D5AF",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #E6D5AF. Screen colour; review against a physical sample."
+  },
+  "colour_sand": {
+    "label": "Sand",
+    "category": "Solid colours",
+    "color": "#D4BE96",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #D4BE96. Screen colour; review against a physical sample."
+  },
+  "colour_buff": {
+    "label": "Buff",
+    "category": "Solid colours",
+    "color": "#C6AA78",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #C6AA78. Screen colour; review against a physical sample."
+  },
+  "colour_taupe": {
+    "label": "Taupe",
+    "category": "Solid colours",
+    "color": "#A89B88",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #A89B88. Screen colour; review against a physical sample."
+  },
+  "colour_greige": {
+    "label": "Greige",
+    "category": "Solid colours",
+    "color": "#B4ADA0",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #B4ADA0. Screen colour; review against a physical sample."
+  },
+  "colour_light_grey": {
+    "label": "Light grey",
+    "category": "Solid colours",
+    "color": "#D0D2CF",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #D0D2CF. Screen colour; review against a physical sample."
+  },
+  "colour_pebble_grey": {
+    "label": "Pebble grey",
+    "category": "Solid colours",
+    "color": "#B7B3A8",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #B7B3A8. Screen colour; review against a physical sample."
+  },
+  "colour_stone_grey": {
+    "label": "Stone grey",
+    "category": "Solid colours",
+    "color": "#99988F",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #99988F. Screen colour; review against a physical sample."
+  },
+  "colour_slate_grey": {
+    "label": "Slate grey",
+    "category": "Solid colours",
+    "color": "#626A70",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #626A70. Screen colour; review against a physical sample."
+  },
+  "colour_anthracite": {
+    "label": "Anthracite grey",
+    "category": "Solid colours",
+    "color": "#383E42",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #383E42. Screen colour; review against a physical sample."
+  },
+  "colour_charcoal": {
+    "label": "Charcoal",
+    "category": "Solid colours",
+    "color": "#2A2E30",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #2A2E30. Screen colour; review against a physical sample."
+  },
+  "colour_black": {
+    "label": "Soft black",
+    "category": "Solid colours",
+    "color": "#171A1B",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #171A1B. Screen colour; review against a physical sample."
+  },
+  "colour_sage": {
+    "label": "Sage green",
+    "category": "Solid colours",
+    "color": "#A4B09A",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #A4B09A. Screen colour; review against a physical sample."
+  },
+  "colour_olive": {
+    "label": "Olive green",
+    "category": "Solid colours",
+    "color": "#777E60",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #777E60. Screen colour; review against a physical sample."
+  },
+  "colour_moss": {
+    "label": "Moss green",
+    "category": "Solid colours",
+    "color": "#606D4D",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #606D4D. Screen colour; review against a physical sample."
+  },
+  "colour_forest": {
+    "label": "Forest green",
+    "category": "Solid colours",
+    "color": "#2E493A",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #2E493A. Screen colour; review against a physical sample."
+  },
+  "colour_teal": {
+    "label": "Deep teal",
+    "category": "Solid colours",
+    "color": "#386966",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #386966. Screen colour; review against a physical sample."
+  },
+  "colour_sky_blue": {
+    "label": "Sky blue",
+    "category": "Solid colours",
+    "color": "#A9C9DB",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #A9C9DB. Screen colour; review against a physical sample."
+  },
+  "colour_steel_blue": {
+    "label": "Steel blue",
+    "category": "Solid colours",
+    "color": "#738E9D",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #738E9D. Screen colour; review against a physical sample."
+  },
+  "colour_navy": {
+    "label": "Navy blue",
+    "category": "Solid colours",
+    "color": "#2C4058",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #2C4058. Screen colour; review against a physical sample."
+  },
+  "colour_ochre": {
+    "label": "Ochre",
+    "category": "Solid colours",
+    "color": "#BD934B",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #BD934B. Screen colour; review against a physical sample."
+  },
+  "colour_terracotta": {
+    "label": "Terracotta",
+    "category": "Solid colours",
+    "color": "#BC7657",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #BC7657. Screen colour; review against a physical sample."
+  },
+  "colour_rust": {
+    "label": "Rust red",
+    "category": "Solid colours",
+    "color": "#984B39",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #984B39. Screen colour; review against a physical sample."
+  },
+  "colour_brick_red": {
+    "label": "Brick red",
+    "category": "Solid colours",
+    "color": "#9A5146",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #9A5146. Screen colour; review against a physical sample."
+  },
+  "colour_burgundy": {
+    "label": "Burgundy",
+    "category": "Solid colours",
+    "color": "#693E43",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #693E43. Screen colour; review against a physical sample."
+  },
+  "colour_chocolate": {
+    "label": "Chocolate brown",
+    "category": "Solid colours",
+    "color": "#584136",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #584136. Screen colour; review against a physical sample."
+  },
+  "colour_walnut": {
+    "label": "Walnut brown",
+    "category": "Solid colours",
+    "color": "#7B614C",
+    "mode": 4,
+    "rough": 1,
+    "description": "Plain solid colour #7B614C. Screen colour; review against a physical sample."
+  }
+,
+
   "library_sandstone": {
     "label": "Brick & stone bands",
     "category": "Brick",

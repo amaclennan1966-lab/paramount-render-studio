@@ -199,3 +199,6 @@ Automatic finite-line boundary detection uses a spatial index instead of all-pai
 
 ### Drawing readability
 Use **Drawing · 65%**, **Presentation · 100%**, or the **Texture opacity** slider. This lightens photographic surface textures towards white without making upper material masks reveal lower finishes. Solid frame colours, glass, original vectors, annotations and planting remain unchanged. Both PDF export modes use the displayed setting; saved finish choices retain it. Older saved choices restore at 100%.
+
+### Solid colours and inspecting finishes
+The **Solid colours** category adds 30 standalone plain-colour finishes, with no tinting of existing textures. Choose one and apply it with Wand or Polygon lasso as usual. These flat colours retain their swatch colour regardless of surface relief or texture opacity. **Inspect finish** identifies the topmost visible rendered area, showing its finish name, category, texture size and hex colour where available. Holes and protected openings are respected. Inspection and pressing Enter in inspection mode leave assignments and draw order unchanged; choose a finish from the palette to repaint. The current finish also appears when selecting an area with Wand or Render draw order.

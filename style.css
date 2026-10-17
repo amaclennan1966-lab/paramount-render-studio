@@ -23,3 +23,5 @@
 #boundary-warning{padding:12px 20px;background:#fff2dc;color:#765116;font-size:12px;line-height:1.5}#boundary-warning[hidden]{display:none}
 
 #texture-opacity-value{float:right;font-weight:600;color:#284e3a}#drawing-mode[aria-pressed=true],#presentation-mode[aria-pressed=true]{border-color:#456d4c;background:#e1ebdc}
+
+#inspect-finish{width:100%;margin-bottom:5px}#current-finish{padding:10px;background:#edf3e9;border-left:3px solid #456d4c;color:#284e3a;font-weight:600}

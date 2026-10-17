@@ -46,8 +46,13 @@ with sync_playwright() as p:
  assert page.locator('#palette button').inner_text().startswith('Light grey frames')
  page.locator('#material-search').fill('')
  page.select_option('#material-category','all')
- assert page.locator('#palette button').count()==38
+ assert page.locator('#palette button').count()==68
  page.evaluate('''async()=>{const {FINISHES,MaterialRenderer}=await import('./renderer.js');const s=ParamountApp.getState(),id=s.faces.reduce((a,b)=>a.area>b.area?a:b).id,c=document.createElement('canvas'),r=new MaterialRenderer(c);for(const key of Object.keys(FINISHES).filter(k=>k.startsWith('library_'))){await r.draw(s.faces,{[id]:key},s.width,s.height,s.scale,36);const pixels=new Uint8Array(c.width*c.height*4);r.gl.readPixels(0,0,c.width,c.height,r.gl.RGBA,r.gl.UNSIGNED_BYTE,pixels);if(!pixels.some((v,i)=>i%4===3&&v>0)||r.gl.getError()!==r.gl.NO_ERROR)throw Error('Material render failed '+key);}}''')
+ # Standalone solid-colour category: no tint operation and exact flat swatches.
+ page.select_option('#material-category','Solid colours');assert page.locator('#palette button').count()==30
+ page.locator('#material-search').fill('Terracotta');assert page.locator('#palette button').count()==1
+ page.locator('#material-search').fill('');page.select_option('#material-category','all')
+ page.evaluate('''async()=>{const {FINISHES,MaterialRenderer}=await import('./renderer.js'),c=document.createElement('canvas'),r=new MaterialRenderer(c),face={id:0,ring:[[0,0],[20,0],[20,20],[0,20],[0,0]],holes:[]};for(const[id,f]of Object.entries(FINISHES).filter(([id,f])=>f.category==='Solid colours')){await r.draw([face],{0:id},20,20,50,72,-45,.5,null,{textureOpacity:0});const p=new Uint8Array(4);r.gl.readPixels(10,10,1,1,r.gl.RGBA,r.gl.UNSIGNED_BYTE,p);const expected=f.color.slice(1).match(/../g).map(h=>parseInt(h,16));if(p[3]!==255||expected.some((v,i)=>Math.abs(v-p[i])>1))throw Error('Solid colour changed '+id);}r.gl.getExtension('WEBGL_lose_context')?.loseContext();}''')
  # New default glass is pale, smooth and the only built-in glass choice.
  page.select_option('#material-category','Glass')
  assert page.locator('#palette button').count()==1
@@ -301,6 +306,15 @@ with sync_playwright() as p:
  deleted_save.value.save_as(ROOT/'browser-smoke-deleted-tree-project.json')
  assert json.loads((ROOT/'browser-smoke-deleted-tree-project.json').read_text())['context']==[]
  assert not errors,errors
+ # Inspector resolves the topmost visible applied mask and does not reapply on Enter.
+ page.locator('#inspect-finish').click();corner(350,450)
+ assert 'Coursed stone' in page.locator('#current-finish').inner_text()
+ inspect_before=page.evaluate('JSON.stringify({a:ParamountApp.getState().assignments,o:ParamountApp.getState().paintOrder})')
+ page.keyboard.press('Enter')
+ assert page.evaluate('JSON.stringify({a:ParamountApp.getState().assignments,o:ParamountApp.getState().paintOrder})')==inspect_before
+ corner(410,470);assert 'Soft pale glass' in page.locator('#current-finish').inner_text()
+ corner(700,550);assert 'No applied finish' in page.locator('#status').inner_text()
+ page.keyboard.press('Escape')
  # GPU opacity lightens surface colour while preserving masks, overlap order,
  # glass and solid frame colours. Low opacity must not reveal lower finishes.
  page.evaluate('''async()=>{
@@ -331,12 +345,16 @@ with sync_playwright() as p:
  for point in [(100,100),(200,100),(200,200),(100,200)]:corner(*point)
  page.locator('#close-lasso').focus();page.keyboard.press('Enter');page.keyboard.press('Enter')
  page.wait_for_function('ParamountApp.getState().manualFaces.length===1')
+ page.select_option('#material-category','Solid colours');page.locator('#palette button[data-material=colour_terracotta]').click();page.locator('#lasso').click()
+ for point in [(220,100),(280,100),(280,200),(220,200)]:corner(*point)
+ page.locator('#close-lasso').focus();page.keyboard.press('Enter');page.keyboard.press('Enter')
  page.locator('#drawing-mode').click();page.wait_for_timeout(300)
  assert page.locator('#texture-opacity').input_value()=='65'
  assert page.locator('#texture-opacity-value').inner_text()=='65%'
  with page.expect_download(timeout=180000) as readability_saved:page.locator('#save-project').click()
  readability_saved.value.save_as(ROOT/'browser-smoke-readability-project.json')
  readability=json.loads((ROOT/'browser-smoke-readability-project.json').read_text());assert readability['textureOpacity']==65
+ assert 'colour_terracotta' in readability['assignments'].values()
  page.locator('#presentation-mode').click();assert page.locator('#texture-opacity').input_value()=='100'
  page.evaluate('async p=>{await ParamountApp.restoreProject(p);}',readability)
  assert page.locator('#texture-opacity').input_value()=='65'

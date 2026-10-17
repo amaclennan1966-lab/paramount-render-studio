@@ -1,6 +1,6 @@
 import {test}from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import crypto from 'node:crypto';import {FINISHES,canonicalFinish}from '../renderer.js';
 test('all library photographs match provenance and every finish resolves',()=>{
- assert.equal(Object.keys(FINISHES).length,38);const manifest=JSON.parse(fs.readFileSync('public/assets/library/manifest.json'));assert.equal(manifest.materials.length,10);
+ assert.equal(Object.keys(FINISHES).length,68);const manifest=JSON.parse(fs.readFileSync('public/assets/library/manifest.json'));assert.equal(manifest.materials.length,10);
  for(const material of manifest.materials)for(const map of Object.values(material.maps)){const bytes=fs.readFileSync('public/assets/library/'+map.file);assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),map.sha256);assert.match(map.source_url,/^https:\/\/dl\.polyhaven\.org\//);}
  for(const finish of Object.values(FINISHES)){assert(finish.category);if(finish.file)assert(fs.existsSync('public/assets/'+finish.file));if(finish.normal)assert(fs.existsSync('public/assets/'+finish.normal));}
 });
@@ -8,3 +8,5 @@ test('all library photographs match provenance and every finish resolves',()=>{
 test("material controls have unique HTML identifiers",()=>{const html=fs.readFileSync("index.html","utf8"),ids=[...html.matchAll(/id="([^"]+)"/g)].map(m=>m[1]);assert.equal(ids.length,new Set(ids).size);});
 
 test("three old glass presets become one diffuse finish without breaking saved IDs",()=>{assert.equal(Object.values(FINISHES).filter(f=>f.category==="Glass").length,1);assert.equal(FINISHES.glass.mode,3);assert(!FINISHES.glass.file);assert.equal(canonicalFinish("glass_green"),"glass");assert.equal(canonicalFinish("glass_blue"),"glass");});
+
+test('30 standalone plain colours have distinct swatches and no source texture or tint',()=>{const colours=Object.values(FINISHES).filter(f=>f.category==='Solid colours');assert.equal(colours.length,30);assert.equal(new Set(colours.map(f=>f.color)).size,30);for(const f of colours){assert.match(f.color,/^#[A-Fa-f0-9]{6}$/);assert.equal(f.mode,4);assert(!f.file&&!f.normal&&!f.tint&&!f.variant);}});

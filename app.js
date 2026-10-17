@@ -3,7 +3,7 @@ import {editOutline,nearestOutlineEdge} from './outline-edit.js';
 import {paintRuns,orderedIds,moveLayer} from './paint-order.js';
 import {snapPoint,validateRing,boundaryReview,validateHole} from './selection.js';
 import {FINISHES,MaterialRenderer,loadImage,drawContext,canonicalFinish}from './renderer.js';
-import {pathString,sourceSegmentsRetained,area}from './geometry.js';
+import {pathString,sourceSegmentsRetained,area,contains}from './geometry.js';
 import {pdfPage,paintPage}from './pdf-input.js';
 import {PDFDocument,PDFArray,PDFRawStream,PDFName,PDFDict,PDFString,PDFOperator}from 'pdf-lib';
 import {jsPDF}from 'jspdf';import {svg2pdf}from 'svg2pdf.js';
@@ -93,9 +93,19 @@ $('render-windows').onclick=async()=>{try{
 }catch(e){fail(e);}};
 for(const[id,f]of Object.entries(FINISHES)){if(f.category!=='Frames & metal'||!f.color)continue;$('window-colour').add(new Option(f.label,id));}$('window-colour').value='white';
 
+function inspectFinishAt(point){
+ const byId=new Map(state.faces.map(f=>[f.id,f]));
+ for(const id of orderedIds(state.assignments,state.paintOrder).reverse()){
+  const f=byId.get(id);if(!f||!contains(point,f.ring)||f.holes.some(r=>contains(point,r))||(f.exclusions||[]).some(e=>contains(point,e.ring)))continue;
+  selection={...f,ring:f.ring.map(p=>[...p]),holes:f.holes.map(h=>h.map(p=>[...p])),sourceId:id,edited:false};draft=[];kind=state.assignments[id];showSelection();renderPalette();status('Current finish: '+finishes()[kind].label+'. Inspection leaves the drawing and render order unchanged.');return;
+ }
+ cancelSelection();mode='inspect';status('No applied finish at this point. Click another rendered area to inspect it.');
+}
+$('inspect-finish').onclick=()=>{if(!state)return status('Open a drawing first.');cancelSelection();mode='inspect';status('Click a rendered area to identify its finish. Escape exits.');};
 function showSelection(){
  outlineEditing=false;outlineDrag=null;$('outline-edit-controls').hidden=true;
  $('texture-size').value=Math.round((state.textureScales[selection?.sourceId]||1)*100);
+ const existing=state.assignments[selection?.sourceId],finish=finishes()[existing];$('current-finish').textContent=finish?'Current finish: '+finish.label+' · '+(finish.category||'My photos')+' · '+Math.round((state.textureScales[selection.sourceId]||1)*100)+'%'+(finish.color?' · '+finish.color.toUpperCase():''):'Current finish: Unrendered area';
  $('selection-controls').hidden=!selection&&!draft.length;
  
  const review=selection?boundaryReview(selection,state.segments):null;
@@ -129,7 +139,7 @@ document.addEventListener('keydown',e=>{
  if(e.repeat||!$('busy').hidden||$('photo-dialog').open)return;
  if(e.target.matches('input,select,textarea')&&e.target.id!=='texture-size')return;
  if(e.key==='Escape'){cancelSelection();mode='finish';}
- if(e.key==='Enter'&&state){if(mode==='lasso'&&draft.length){e.preventDefault();closeLasso();}else if(selection&&!draft.length){e.preventDefault();applySelection();}}
+ if(e.key==='Enter'&&state&&mode!=='inspect'){if(mode==='lasso'&&draft.length){e.preventDefault();closeLasso();}else if(selection&&!draft.length){e.preventDefault();applySelection();}}
 });
 let photo=null,crop=null,photoStart=null,samplePixel=[0,0];
 function paintPhoto(){if(!photo)return;const c=$('photo-crop'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(photo,0,0,c.width,c.height);if(crop){ctx.strokeStyle='#ffbe35';ctx.lineWidth=3;ctx.strokeRect(crop.x,crop.y,crop.w,crop.h);}}
@@ -161,7 +171,7 @@ function setupRegions(){
   const title=document.createElementNS(svg.namespaceURI,'title');title.textContent='Click to delete this '+(item.type==='plan'?'plan tree':'tree');rect.append(title);svg.append(rect);
  }
  renderOutlineHandles(svg);
- svg.onclick=e=>{if(spaceHeld||pan)return;const r=svg.getBoundingClientRect(),point=[(e.clientX-r.left)/r.width*state.width,(e.clientY-r.top)/r.height*state.height];if(mode==='delete-tree'){const[x,y]=point;let index=-1;for(let i=state.context.length-1;i>=0;i--){const t=state.context[i];if(x>=t.x&&x<=t.x+t.w&&y>=t.y-t.h&&y<=t.y){index=i;break;}}if(index<0){status('Click inside an outlined tree to delete it. Escape exits.');return;}remember();state.context.splice(index,1);lastQA=null;setupRegions();refresh();status('Tree deleted. Undo restores it. Click another tree, or press Escape to finish.');return;}if(mode==='edit'){if(editTool==='add'){const edge=nearestOutlineEdge(selection,point,12/zoom);if(edge)tryOutlineEdit(edge.ringIndex,edge.index,'add',edge.point);else status('Click closer to an outline edge.');}return;}if(mode==='lasso'){draft.push(snapPoint(point,state.segments,10/zoom));showSelection();return;}if(mode==='finish'){status('No closed source area here. Use Polygon lasso to define a reviewed boundary.');return;}const[x,y]=point,h=5000/state.scale*72/25.4;remember();state.context.push({type:mode==='plan'?'plan':'tree',x:x-h*.32,y,w:h*.64,h:mode==='plan'?h*.64:h});mode='finish';refresh();};
+ svg.onclick=e=>{if(spaceHeld||pan)return;const r=svg.getBoundingClientRect(),point=[(e.clientX-r.left)/r.width*state.width,(e.clientY-r.top)/r.height*state.height];if(mode==='inspect'){inspectFinishAt(point);return;}if(mode==='delete-tree'){const[x,y]=point;let index=-1;for(let i=state.context.length-1;i>=0;i--){const t=state.context[i];if(x>=t.x&&x<=t.x+t.w&&y>=t.y-t.h&&y<=t.y){index=i;break;}}if(index<0){status('Click inside an outlined tree to delete it. Escape exits.');return;}remember();state.context.splice(index,1);lastQA=null;setupRegions();refresh();status('Tree deleted. Undo restores it. Click another tree, or press Escape to finish.');return;}if(mode==='edit'){if(editTool==='add'){const edge=nearestOutlineEdge(selection,point,12/zoom);if(edge)tryOutlineEdit(edge.ringIndex,edge.index,'add',edge.point);else status('Click closer to an outline edge.');}return;}if(mode==='lasso'){draft.push(snapPoint(point,state.segments,10/zoom));showSelection();return;}if(mode==='finish'){status('No closed source area here. Use Polygon lasso to define a reviewed boundary.');return;}const[x,y]=point,h=5000/state.scale*72/25.4;remember();state.context.push({type:mode==='plan'?'plan':'tree',x:x-h*.32,y,w:h*.64,h:mode==='plan'?h*.64:h});mode='finish';refresh();};
 }
 async function open(bytes,name,pageIndex=0,existing=null){busy('Reading original drawing…');if(bytes.byteLength>32*1024*1024)throw Error('Maximum drawing size is 32 MB.');const isDXF=name.toLowerCase().endsWith('.dxf');let imported;try{if(isDXF)imported=await dxf(bytes,Number($('scale').value));else imported=await pdfPage(bytes,pageIndex);}catch(e){if(e.suggestedScale){pendingImport={bytes:bytes.slice(),name};$('export').disabled=true;$('import-error').hidden=false;$('import-error-text').textContent=name+': '+e.message;$('retry-scale').textContent='Retry at 1:'+e.suggestedScale;$('retry-scale').dataset.scale=e.suggestedScale;$('retry-scale').hidden=false;}throw e;}pendingImport=null;lastQA=null;$('export').disabled=false;$('import-error').hidden=true;busy('Finding closed source boundaries…');const detection=await faces(imported.segments),boundaries=detection.faces;busy('Inspecting closed source objects…');const scan=detection.warning?{objects:[],error:'Automatic window, door and pipe detection was skipped on this detailed sheet. Review and protect openings manually.'}:await scanObjects(imported,boundaries,imported.scale||Number($('scale').value));state={...imported,boundaryWarning:detection.warning||null,manualFaces:[],customFinishes:{},objects:(scan.objects||[]).map(o=>({...o,windowApproved:o.type==='window'&&o.confirmed})),objectNotes:scan.error?[scan.error]:[],paintOrder:[],textureScales:{},original:bytes.slice(),filename:name,sourceHash:await hash(bytes),type:isDXF?'dxf':'pdf',scale:imported.scale||Number($('scale').value),faces:boundaries,assignments:{},context:[],index:pageIndex};if(existing){state.assignments=existing.assignments;state.context=existing.context;}history=[];$('filename').textContent=name;$('summary').textContent=`${detection.warning?'Lasso mode · ':''}${boundaries.length} enclosed areas · ${isDXF?'A3 · model space in mm':'original paper size retained'}`;$('scale').value=state.scale;$('scale-note').textContent=isDXF?'DXF model-space geometry is placed at this scale on A3, without auto-fit.':'Source PDF geometry is unchanged. This scale sizes materials; print at Actual Size.';$('page').replaceChildren();for(let i=0;i<(state.pages||1);i++){const o=document.createElement('option');o.value=i;o.textContent='Sheet '+(i+1);o.selected=i===pageIndex;$('page').append(o);}$('empty').hidden=true;$('sheet').hidden=false;$('controls').hidden=false;
  if(isDXF){const image=new Image();const url=URL.createObjectURL(new Blob([state.svg],{type:'image/svg+xml'}));await new Promise((res,rej)=>{image.onload=res;image.onerror=()=>rej(Error('DXF preview could not be displayed.'));image.src=url;});const c=$('linework');c.width=Math.ceil(state.width*1.7);c.height=Math.ceil(state.height*1.7);c.getContext('2d').drawImage(image,0,0,c.width,c.height);URL.revokeObjectURL(url);}else await paintPage(state,$('linework'));
