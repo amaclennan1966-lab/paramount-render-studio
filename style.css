@@ -25,3 +25,16 @@
 #texture-opacity-value{float:right;font-weight:600;color:#284e3a}#drawing-mode[aria-pressed=true],#presentation-mode[aria-pressed=true]{border-color:#456d4c;background:#e1ebdc}
 
 #inspect-finish{width:100%;margin-bottom:5px}#current-finish{padding:10px;background:#edf3e9;border-left:3px solid #456d4c;color:#284e3a;font-weight:600}
+
+
+#material-search,#online-search{display:block;width:100%;padding:10px;border:1px solid #d6ddd2;border-radius:7px;background:white;font:inherit;margin-top:6px}
+#online-library{border:1px solid #dbe2d8;background:#fff;border-radius:9px;padding:12px;margin:12px 0}
+#online-library summary{cursor:pointer;font-size:12px;font-weight:700;color:#294e38}
+#online-library>button{width:100%;margin:8px 0}
+#online-materials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:480px;overflow:auto;margin-top:10px}
+.online-finish{padding:6px;background:#fff;border:1px solid #d9e2da;color:#314638;border-radius:7px;display:flex;flex-direction:column;gap:5px;font-size:11px;min-width:0}
+.online-finish:hover{background:#eef5ee;border-color:#60836c}
+.online-finish img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#ecece8;border-radius:5px}
+.online-finish span{font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+.online-finish small{color:#738376}
+#palette .finish{min-width:0;overflow-wrap:anywhere}
