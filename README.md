@@ -202,3 +202,20 @@ Use **Drawing · 65%**, **Presentation · 100%**, or the **Texture opacity** sli
 
 ### Solid colours and inspecting finishes
 The **Solid colours** category adds 30 standalone plain-colour finishes, with no tinting of existing textures. Choose one and apply it with Wand or Polygon lasso as usual. These flat colours retain their swatch colour regardless of surface relief or texture opacity. **Inspect finish** identifies the topmost visible rendered area, showing its finish name, category, texture size and hex colour where available. Holes and protected openings are respected. Inspection and pressing Enter in inspection mode leave assignments and draw order unchanged; choose a finish from the palette to repaint. The current finish also appears when selecting an area with Wand or Render draw order.
+
+### Optional Poly Haven catalogue
+
+Open **Optional Poly Haven catalogue** and select **Load free photographic catalogue**.
+Search or filter, then select a texture. This adds a finish to the current drawing;
+use the existing wand/lasso and Apply finish controls to paint it. No drawing is uploaded.
+The installed 68 finishes work without this catalogue.
+
+Catalogue finishes default to a 2000 × 2000 mm repeat because provider metadata is
+not treated as a measured architectural dimension. Review the repeat against known
+brick courses or a manufacturer sample and adjust Texture size. PDF page dimensions
+and drawing scale are independent of texture size.
+
+Saved finish choices retain validated Poly Haven URLs and repeat sizes (maximum 60
+catalogue finishes). Restoring or exporting requires those images to remain available
+online; this is not an embedded offline texture pack. CORS failures stop image loading
+rather than producing an unverifiable PDF.

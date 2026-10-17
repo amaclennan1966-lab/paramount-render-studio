@@ -1,0 +1,26 @@
+name: Material integration regression
+on:
+  pull_request:
+  push:
+    branches: [integrate-polyhaven]
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
+      - run: node --check app.js && node --check renderer.js && node --check polyhaven.js
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install ezdxf==1.4.4 Pillow playwright PyMuPDF
+      - run: python tests/test_cad_import.py
+      - run: playwright install --with-deps chromium
+      - run: python tests/browser_polyhaven.py
+      - run: python tests/browser_smoke.py
