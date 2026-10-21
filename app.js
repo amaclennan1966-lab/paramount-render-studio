@@ -1,3 +1,4 @@
+import './workspace.js';
 import {CATEGORIES,catalogFromAPI,resolvePolyHavenMaterial,validateLibraryFinishes} from './polyhaven.js';
 import {exclusionsFor,rectangleRing}from './object-detection.js';
 import {editOutline,nearestOutlineEdge} from './outline-edit.js';

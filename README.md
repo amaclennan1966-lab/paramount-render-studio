@@ -219,3 +219,8 @@ Saved finish choices retain validated Poly Haven URLs and repeat sizes (maximum 
 catalogue finishes). Restoring or exporting requires those images to remain available
 online; this is not an embedded offline texture pack. CORS failures stop image loading
 rather than producing an unverifiable PDF.
+
+
+### Compact workspace (review branch)
+
+The icon workspace keeps the original renderer and saved choices. Use the left rail for tools and the right panel for the active tool's properties. Panels collapse and resize; F toggles canvas focus and Escape returns. CAD and SITE PLAN are future-workspace placeholders. All original controls, including the 30 solid colours and optional Poly Haven catalogue, remain available. See [workspace inventory and verification](docs/COMPACT_WORKSPACE.md). This redesign is proposed on `feature/compact-icon-workspace` and is not a production deployment.

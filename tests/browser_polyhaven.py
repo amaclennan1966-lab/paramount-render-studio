@@ -2,12 +2,13 @@
 from pathlib import Path
 import http.server,threading,functools,json
 from playwright.sync_api import sync_playwright
+from workspace_navigation import WorkspacePage
 ROOT=Path(__file__).resolve().parents[1]
 server=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(http.server.SimpleHTTPRequestHandler,directory=str(ROOT)))
 threading.Thread(target=server.serve_forever,daemon=True).start()
 with sync_playwright() as p:
  browser=p.chromium.launch(headless=True,args=['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader'])
- page=browser.new_page(accept_downloads=True); errors=[]; requests=[]
+ page=WorkspacePage(browser.new_page(accept_downloads=True)); errors=[]; requests=[]
  page.on('pageerror',lambda e:errors.append(str(e)))
  def provider(route):
   requests.append(route.request.url)
@@ -45,3 +46,4 @@ with sync_playwright() as p:
  browser.close()
 server.shutdown()
 print('Optional catalogue, GPU render, save/restore and original-vector PDF QA passed.')
+
