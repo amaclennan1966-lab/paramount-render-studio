@@ -54,6 +54,8 @@ with sync_playwright() as p:
    page.set_viewport_size({'width':width,'height':height});page.locator('#fit').click()
    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
    canvas=page.locator('#viewport').bounding_box();assert canvas['width']>width*.68,(width,canvas)
+   paper=page.locator('#sheet').bounding_box();assert paper['y']>=canvas['y'] and paper['y']+paper['height']<=canvas['y']+canvas['height']+.5,(canvas,paper)
+   assert paper['x']>=canvas['x'] and paper['x']+paper['width']<=canvas['x']+canvas['width']+.5,(canvas,paper)
    assert page.locator('#properties').bounding_box()['width']<=440
    page.screenshot(path=str(ROOT/f'browser-smoke-workspace-{width}x{height}.png'),full_page=True)
   page.locator('#canvas-focus').click();page.screenshot(path=str(ROOT/'browser-smoke-workspace-focus.png'),full_page=True);page.keyboard.press('Escape')
