@@ -26,3 +26,5 @@ body.compact-workspace{--properties-width:300px;--ui-bg:#25272b;--ui-panel:#3032
 
 /* Preserve the original SVG export holder's inherited text colour and font. */
 .compact-workspace>div[style*="-10000px"]{color:#23382e;color-scheme:light;font-size:14px}.compact-workspace .toolbar button[aria-pressed=true]{background:#4b6258;color:#d6f6e7}
+
+.compact-workspace #online-library{background:transparent;border:1px solid #4e535b;border-radius:4px;padding:2px 8px}.compact-workspace #online-library summary{background:transparent;color:#cbd8d1;padding:8px 0;font-size:10px}
