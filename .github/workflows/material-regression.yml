@@ -2,7 +2,10 @@ name: Material integration regression
 on:
   pull_request:
   push:
-    branches: [integrate-polyhaven]
+    branches: [integrate-polyhaven, feature/compact-icon-workspace]
+concurrency:
+  group: material-review-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -15,12 +18,20 @@ jobs:
         with:
           node-version: '22'
       - run: npm test
-      - run: node --check app.js && node --check renderer.js && node --check polyhaven.js
+      - run: node --check app.js && node --check renderer.js && node --check polyhaven.js && node --check workspace.js
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: pip install ezdxf==1.4.4 Pillow playwright PyMuPDF
       - run: python tests/test_cad_import.py
       - run: playwright install --with-deps chromium
+      - run: python tests/browser_workspace.py
       - run: python tests/browser_polyhaven.py
       - run: python tests/browser_smoke.py
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: compact-workspace-review
+          path: browser-smoke-*
+          if-no-files-found: ignore
