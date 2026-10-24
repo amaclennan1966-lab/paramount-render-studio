@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paramount 3D Prototype</title><style>
+body{margin:0;background:#111820;color:#eef2f5;font:15px system-ui}header{padding:14px 20px;background:#202d38}h1{font-size:19px;margin:0}main{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 55px)}aside{padding:18px;background:#1a2530}label{display:block;margin:14px 0}input,button{max-width:100%}button{background:#356b99;color:white;border:0;padding:10px;cursor:pointer}#viewport{width:100%;height:calc(100vh - 55px);min-height:400px}pre{white-space:pre-wrap;word-break:break-word;font-size:12px}small{color:#b8c8d2}@media(max-width:700px){main{display:block}#viewport{height:55vh}}
+</style></head><body>
+<header><h1>Paramount 3D — Read-only Model Inspection</h1></header>
+<main><aside><p><strong>Prototype: GLB/GLTF preview only.</strong> Export a copy from SketchUp. Original SKP is not opened, uploaded or changed.</p>
+<label>Converted model (.glb)<input type="file" id="model" accept=".glb,.gltf,model/gltf-binary"></label>
+<button id="report" disabled>Download geometry report</button>
+<p id="status" role="status">Select a GLB model.</p><small>All processing happens in this browser. This is not yet a photorealistic final renderer or SKP fidelity certification.</small><pre id="metrics"></pre></aside><div id="viewport"></div></main>
+<script type="module" src="./viewer.js"></script></body></html>
